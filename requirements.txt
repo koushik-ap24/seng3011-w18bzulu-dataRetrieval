@@ -1,2 +1,4 @@
 Flask==2.0.1
-Mangum==0.9.0
+mangum==0.9.0
+psycopg==3.2.5
+werkzeug==2.3.7
