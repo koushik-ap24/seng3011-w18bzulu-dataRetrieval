@@ -8,5 +8,3 @@ def home():
     return jsonify(message="Hello from Flask on AWS Lambda!")
 
 handler = Mangum(app)
-
-# Sample change 3
