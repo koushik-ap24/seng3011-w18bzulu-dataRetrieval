@@ -12,11 +12,11 @@ class populationUnitTest(unittest.TestCase):
     
     def invalidYearRangeQuery(self):
         result = population(2026, 2021, "Albury")
-        self.assertRaises(Exception)
+        self.assertEqual(None)
     
     def invalidYearQuery(self):
         result = population(1999, 2021, "Albury")
-        self.assertRaises(Exception)
+        self.assertEqual(None)
 
 if __name__ == '__main__':
     unittest.main()
