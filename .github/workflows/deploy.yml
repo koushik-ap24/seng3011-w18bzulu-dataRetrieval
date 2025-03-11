@@ -13,14 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install dependencies inside a 'package' directory
+      - name: Install dependencies inside 'package/app' directory
         run: |
+          mkdir -p package/app  # Create package/app if not exists
           python -m pip install --upgrade pip
-          pip install -r requirements.txt -t package/
+          pip install -r requirements.txt -t package/app  # Install dependencies inside app/
 
-      - name: Copy application files (avoid package directory recursion)
+      - name: Copy application files into 'package/app'
         run: |
-          cp -r $(ls | grep -v 'package') package/
+          cp -r $(ls | grep -v 'package') package/app/
 
       - name: Install zip command
         uses: montudor/action-zip@v1
