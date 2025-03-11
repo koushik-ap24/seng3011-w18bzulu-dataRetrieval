@@ -13,17 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install dependencies
+      - name: Install dependencies inside a 'package' directory
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt -t package/
 
-      - name: Install zip commmand
+      - name: Move application files into the 'package' directory
+        run: cp -r . package/
+
+      - name: Install zip command
         uses: montudor/action-zip@v1
 
       - name: Create zip file for Lambda function
-        run:
-          zip -r code.zip .
+        run: |
+          cd package
+          zip -r ../code.zip .
 
       - name: AWS CLI v2
         uses: imehedi/actions-awscli-v2@latest
