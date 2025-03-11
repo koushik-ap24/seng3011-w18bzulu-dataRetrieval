@@ -7,4 +7,4 @@ app = Flask(__name__)
 def home():
     return jsonify(message="Hello from Flask on AWS Lambda!")
 
-handler = Mangum(app)
+handler = Mangum(app, lifespan="off")
