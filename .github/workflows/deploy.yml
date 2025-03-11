@@ -18,8 +18,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -t package/
 
-      - name: Move application files into the 'package' directory
-        run: cp -r . package/
+      - name: Copy application files (avoid package directory recursion)
+        run: |
+          cp -r $(ls | grep -v 'package') package/
 
       - name: Install zip command
         uses: montudor/action-zip@v1
