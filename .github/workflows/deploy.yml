@@ -26,22 +26,6 @@ jobs:
         run: |
           cp -r $(ls | grep -v 'package' | grep -v '.git') package/  # Copy application files to package root
 
-      - name: Create lambda_function.py with path setup
-        run: |
-          cat > package/lambda_function.py << 'EOL'
-          import sys
-          import os
-          
-          # Only modify path in Lambda environment
-          if os.environ.get('AWS_EXECUTION_ENV') is not None:
-              sys.path.append(os.path.join(os.path.dirname(__file__), "dependencies"))
-          
-          from app import app
-          from mangum import Mangum
-          
-          handler = Mangum(app)
-          EOL
-
       - name: Install zip command
         uses: montudor/action-zip@v1
 

@@ -1,3 +1,4 @@
+aws-wsgi==0.2.7
 blinker==1.9.0
 click==8.1.8
 Flask==3.1.0
