@@ -3,7 +3,7 @@ name: Deploy Flask App to AWS Lambda
 on:
   push:
     branches:
-      - deployment_test  # Trigger on push to the main branch
+      - deployment_test  # Trigger on push to the deployment_test branch
 
 jobs:
   deploy:
@@ -13,13 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Create directory structure
+      - name: Install AWS CLI
         run: |
-          mkdir -p package  # Create a separate folder for dependencies
+          sudo apt-get update
+          sudo apt-get install -y awscli
 
-      - name: Copy application files to the root of the package
-        run: |
-          cp -r $(ls | grep -v 'package' | grep -v '.git') package/  # Copy application files to package root
+      - name: Create directory structure
+        run: mkdir -p package
+
+      - name: Copy application files to the package root
+        run: cp -r $(ls | grep -v 'package' | grep -v '.git') package/
 
       - name: Install zip command
         uses: montudor/action-zip@v1
@@ -29,17 +32,21 @@ jobs:
           cd package
           zip -r ../code.zip .
 
-      - name: AWS CLI v2
-        uses: imehedi/actions-awscli-v2@latest
-        with:
-          args: "lambda update-function-code \
-            --function-name arn:aws:lambda:us-east-1:189474657107:function:flask_lambda \
-            --zip-file fileb://code.zip"
-      
-      - name: Create Lambda Layer
+      - name: Upload Lambda Function Code
         run: |
-          mkdir -p python/lib/python3.9/site-packages
-          pip install -r requirements.txt -t python/lib/python3.9/site-packages
+          aws lambda update-function-code \
+            --function-name flask_lambda \
+            --zip-file fileb://code.zip
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_DEFAULT_REGION: "us-east-1"
+
+      - name: Create Lambda Layer for Dependencies
+        run: |
+          mkdir -p python/lib/python3.12/site-packages  # Match Lambda runtime
+          pip install -r requirements.txt -t python/lib/python3.12/site-packages
           cd python
           zip -r ../lambda-layer.zip .
           cd ..
@@ -50,13 +57,20 @@ jobs:
             --layer-name my-dependencies-layer \
             --description "Dependencies for Flask API" \
             --zip-file fileb://lambda-layer.zip \
-            --compatible-runtimes python3.9 \
+            --compatible-runtimes python3.12 \
             --output text --query 'LayerVersionArn')
-          
-          # Update Lambda function to use this layer
+
+          # Get existing layers
+          CURRENT_LAYERS=$(aws lambda get-function-configuration \
+            --function-name flask_lambda \
+            --query 'Layers[*].Arn' --output text)
+
+          # Append the new layer
+          NEW_LAYERS="$LAYER_VERSION $CURRENT_LAYERS"
+
           aws lambda update-function-configuration \
             --function-name flask_lambda \
-            --layers $LAYER_VERSION
+            --layers $NEW_LAYERS
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
