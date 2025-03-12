@@ -45,8 +45,7 @@ jobs:
         run: |
           mkdir -p python/lib/python3.12/site-packages
           pip install -r requirements.txt -t python/lib/python3.12/site-packages
-          cd python
-          zip -r ../lambda-layer.zip .
+          zip -r lambda-layer.zip python
           cd ..
         
       - name: Deploy Lambda Layer
