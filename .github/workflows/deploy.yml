@@ -3,7 +3,7 @@ name: Deploy Flask App to AWS Lambda
 on:
   push:
     branches:
-      - deployment_test  # Trigger on push to the main branch
+      - main  # Trigger on push to the main branch
 
 jobs:
   deploy:
