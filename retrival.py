@@ -40,10 +40,18 @@ def dbQuery(query, conn, suburbs, indices, sortByStart=True):
     curs = conn.cursor()
     cols = [constants.COLUMN_NAMES[0]] + constants.COLUMN_NAMES[indices[0]:indices[1]]
     cols = str(cols).replace("[", "").replace("]", "")
+
     if sortByStart:
-        curs.execute(query, (cols, suburbs, constants.COLUMN_NAMES[indices[0]]))
+        if suburbs:
+            vars = (cols, suburbs, constants.COLUMN_NAMES[indices[0]])
+        else:
+            vars = (cols, constants.COLUMN_NAMES[indices[0]])
     elif not sortByStart:
-        curs.execute(query, (cols, suburbs, constants.COLUMN_NAMES[indices[1] - 1]))
+        if suburbs:
+            vars = (cols, suburbs, constants.COLUMN_NAMES[indices[1] - 1])
+        else:
+            vars = (cols, constants.COLUMN_NAMES[indices[1] - 1])
+    curs.execute(query, vars)
     res = curs.fetchall()
     conn.close()
     return res
@@ -88,8 +96,7 @@ def populationAll(startYear, endYear, sortPopBy=None, sortByStart=True):
     db_population_query = """SELECT %s 
         FROM population
         ORDER BY %s"""
-    suburbs = "ANY"
 
-    res_suburbs = dbQuery(db_population_query, conn, suburbs, sortByStart, indices)
+    res_suburbs = dbQuery(db_population_query, conn, None, sortByStart, indices)
 
     return res_suburbs
