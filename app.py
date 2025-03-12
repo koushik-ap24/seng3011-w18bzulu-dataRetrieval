@@ -1,12 +1,11 @@
 from flask import Flask, jsonify
-from mangum import Mangum  # Required to make Flask Lambda-compatible
 import awsgi
 import sys
 import os
 
 # Only modify path in Lambda environment
 if os.environ.get('AWS_EXECUTION_ENV') is not None:
-    sys.path.append(os.path.join(os.path.dirname(__file__), "dependencies"))
+    sys.path.append("/opt")  # AWS Lambda mounts layers under /opt
 
 app = Flask(__name__)
 
