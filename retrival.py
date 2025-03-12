@@ -36,27 +36,19 @@ def testYears(startYear, endYear):
     return [startIndex, lastIndex]
 
 # Returns the indices of the years in the database
-def dbQuery(query, conn, suburbs, indices, sortByStart=True):
+def dbQuery(query, conn, suburbs, indices):
     curs = conn.cursor()
     cols = [constants.COLUMN_NAMES[0]] + constants.COLUMN_NAMES[indices[0]:indices[1]]
     cols = str(cols).replace("[", "").replace("]", "")
-
-    if sortByStart:
-        if suburbs:
-            vars = (cols, suburbs, constants.COLUMN_NAMES[indices[0]])
-        else:
-            vars = (cols, constants.COLUMN_NAMES[indices[0]])
-    elif not sortByStart:
-        if suburbs:
-            vars = (cols, suburbs, constants.COLUMN_NAMES[indices[1] - 1])
-        else:
-            vars = (cols, constants.COLUMN_NAMES[indices[1] - 1])
-    curs.execute(query, vars)
+    if suburbs:
+        curs.execute(query, (cols, suburbs))
+    else:
+        curs.execute(query, (cols,))
     res = curs.fetchall()
     conn.close()
     return res
 
-def population(startYear, endYear, suburbs, sortPopBy=None, sortByStart=True):
+def population(startYear, endYear, suburbs):
     indices = testYears(startYear, endYear)
     if not indices:
         return None
@@ -70,9 +62,9 @@ def population(startYear, endYear, suburbs, sortPopBy=None, sortByStart=True):
     db_population_query = """SELECT %s 
         FROM population 
         WHERE lga IN %s
-        ORDER BY %s"""
+        ORDER BY lga ASCENDING"""
     suburbs = str(suburbs).replace("[", "(").replace("]", ")")
-    res_suburbs = dbQuery(db_population_query, conn, suburbs, indices, sortByStart)
+    res_suburbs = dbQuery(db_population_query, conn, suburbs, indices)
 
     # Ensure that data is correct
     if len(res_suburbs) == 0:
@@ -86,7 +78,7 @@ def population(startYear, endYear, suburbs, sortPopBy=None, sortByStart=True):
 
     return res_suburbs
 
-def populationAll(startYear, endYear, sortPopBy=None, sortByStart=True):
+def populationAll(startYear, endYear):
     indices = testYears(startYear, endYear)
     if not indices:
         return None
@@ -95,8 +87,8 @@ def populationAll(startYear, endYear, sortPopBy=None, sortByStart=True):
     
     db_population_query = """SELECT %s 
         FROM population
-        ORDER BY %s"""
+        ORDER BY lga ASCENDING"""
 
-    res_suburbs = dbQuery(db_population_query, conn, None, sortByStart, indices)
+    res_suburbs = dbQuery(db_population_query, conn, None, indices)
 
     return res_suburbs
