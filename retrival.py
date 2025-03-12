@@ -1,6 +1,7 @@
 import psycopg
 import math
 import secret
+import constants
 
 def db_connect(host, port, user, password, db):
     conn = psycopg.connect(
@@ -34,32 +35,61 @@ def testYears(startYear, endYear):
     lastIndex = endDiff + 2 if endDiff <= 10 else 12 + math.ceil((endDiff - 10) / 5)
     return [startIndex, lastIndex]
 
-def population(startYear, endYear, suburb):
+# Returns the indices of the years in the database
+def dbQuery(query, conn, suburbs, indices, sortByStart=True):
+    curs = conn.cursor()
+    cols = [constants.COLUMN_NAMES[0]] + constants.COLUMN_NAMES[indices[0]:indices[1]]
+    cols = str(cols).replace("[", "").replace("]", "")
+    if sortByStart:
+        curs.execute(query, (cols, suburbs, constants.COLUMN_NAMES[indices[0]]))
+    elif not sortByStart:
+        curs.execute(query, (cols, suburbs, constants.COLUMN_NAMES[indices[1] - 1]))
+    res = curs.fetchall()
+    conn.close()
+    return res
+
+def population(startYear, endYear, suburbs, sortPopBy=None, sortByStart=True):
     indices = testYears(startYear, endYear)
     if not indices:
         return None
     
+    if type(suburbs) != list:
+        suburbs = [suburbs]
+    
     # TODO: ADD DB CONNECTION
     conn = db_connect(secret.host, secret.port, secret.user, secret.password, secret.db)
     
-    db_population_query = " SELECT * FROM population WHERE lga = %s"
-    curs = conn.cursor()
-    # colnames = [desc[0] for desc in curs.description]
-    curs.execute(db_population_query, (suburb,))
-    suburbs = curs.fetchall()
-    conn.close()
+    db_population_query = """SELECT %s 
+        FROM population 
+        WHERE lga IN %s
+        ORDER BY %s"""
+    suburbs = str(suburbs).replace("[", "(").replace("]", ")")
+    res_suburbs = dbQuery(db_population_query, conn, suburbs, indices, sortByStart)
 
     # Ensure that data is correct
-    if len(suburbs) == 0:
+    if len(res_suburbs) == 0:
         # TODO: add error message
         print("Suburb not found")
         return None
-    elif len(suburbs) > 1:
-        # TODO: add error meessage
-        print("ERROR: DB has the suburb more than once")
+    elif len(res_suburbs) != indices[1] - indices[0] + 1:
+        # TODO: add error message
+        print("ERROR: DB does not have data for all suburbs")
+        return None
+
+    return res_suburbs
+
+def populationAll(startYear, endYear, sortPopBy=None, sortByStart=True):
+    indices = testYears(startYear, endYear)
+    if not indices:
         return None
     
-    suburb_info = suburbs[0]
-    suburb = suburb_info[indices[0]:indices[1]]
+    conn = db_connect(secret.host, secret.port, secret.user, secret.password, secret.db)
+    
+    db_population_query = """SELECT %s 
+        FROM population
+        ORDER BY %s"""
+    suburbs = "ANY"
 
-    return suburb
+    res_suburbs = dbQuery(db_population_query, conn, suburbs, sortByStart, indices)
+
+    return res_suburbs
