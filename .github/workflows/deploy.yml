@@ -55,7 +55,7 @@ jobs:
             --layer-name my-dependencies-layer \
             --description "Dependencies for Flask API" \
             --zip-file fileb://lambda-layer.zip \
-            --compatible-runtimes python3.9 \
+            --compatible-runtimes python3.12 \
             --output text --query 'LayerVersionArn')
           
           # Update Lambda function to use this layer
