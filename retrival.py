@@ -23,12 +23,16 @@ def valid_year(year):
 # Returns False if the years are invalid
 # Returns None if the years are out of range
 def testYears(startYear, endYear):
-    if not valid_year(startYear) or not valid_year(endYear) or startYear > endYear:
-        return False
-    if startYear > 2031 and endYear - startYear < 4:
+    if not valid_year(startYear):
+        return {"Error": "Invalid start year", "Code": 400}
+    elif not valid_year(endYear):
+        return {"Error": "Invalid end year", "Code": 400}
+    elif startYear > endYear:
+        return {"Error": "Start year is greater than end year", "Code": 400}
+    elif startYear > 2031 and endYear - startYear < 4:
         # check if there is a valid year between start and end
         if (endYear - (endYear - 1) % 5) < startYear:
-            return False
+            return {"Error": "Invalid year range", "Code": 400}
     startDiff = startYear - 2021
     endDiff = endYear - 2021
     startIndex = startDiff + 1 if startDiff <= 10 else 11 + math.ceil((startDiff - 10) / 5)
@@ -50,8 +54,8 @@ def dbQuery(query, conn, suburbs, indices):
 
 def population(startYear, endYear, suburbs):
     indices = testYears(startYear, endYear)
-    if not indices:
-        return None
+    if type(indices[0]) == dict:
+        return indices
     
     if type(suburbs) != list:
         suburbs = [suburbs]
@@ -68,14 +72,9 @@ def population(startYear, endYear, suburbs):
 
     # Ensure that data is correct
     if len(res_suburbs) == 0:
-        # TODO: add error message
-        print("Suburb not found")
-        return None
-    elif len(res_suburbs) != indices[1] - indices[0] + 1:
-        # TODO: add error message
-        print("ERROR: DB does not have data for all suburbs")
-        return None
-
+        return {"Error": "No suburb found", "Code": 400}
+    elif len(res_suburbs) != len(suburbs):
+        return {"Error": "DB does not have data for all suburbs", "Code": 400}
     return res_suburbs
 
 def populationAll(startYear, endYear):
@@ -90,5 +89,8 @@ def populationAll(startYear, endYear):
         ORDER BY lga ASCENDING"""
 
     res_suburbs = dbQuery(db_population_query, conn, None, indices)
-
+    
+    if len(res_suburbs) == 0:
+        return {"Error": "No suburb found", "Code": 400}
+    
     return res_suburbs
