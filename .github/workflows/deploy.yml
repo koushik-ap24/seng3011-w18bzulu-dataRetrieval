@@ -3,7 +3,7 @@ name: Deploy Flask App to AWS Lambda
 on:
   push:
     branches:
-      - deployment_test  # Trigger on push to the main branch
+      - main  # Trigger on push to the main branch
 
 jobs:
   deploy:
@@ -15,7 +15,7 @@ jobs:
 
       - name: Create directory structure
         run: |
-          mkdir package  # Create a separate folder for dependencies
+          mkdir -p package  # Create a separate folder for dependencies
 
       - name: Copy application files to the root of the package
         run: |
@@ -35,15 +35,20 @@ jobs:
           args: "lambda update-function-code \
             --function-name arn:aws:lambda:us-east-1:189474657107:function:flask_lambda \
             --zip-file fileb://code.zip"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_DEFAULT_REGION: "us-east-1"
       
       - name: Create Lambda Layer
         run: |
-          mkdir -p python/lib/python3.12/site-packages
-          pip install -r requirements.txt -t python/lib/python3.12/site-packages
+          mkdir -p python/lib/python3.9/site-packages
+          pip install -r requirements.txt -t python/lib/python3.9/site-packages
           cd python
           zip -r ../lambda-layer.zip .
           cd ..
-      
+        
       - name: Deploy Lambda Layer
         run: |
           LAYER_VERSION=$(aws lambda publish-layer-version \
