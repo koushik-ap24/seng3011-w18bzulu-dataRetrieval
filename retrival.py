@@ -1,7 +1,7 @@
 import psycopg
 import math
-import secret
 import constants
+import os
 
 def db_connect(host, port, user, password, db):
     conn = psycopg.connect(
@@ -18,6 +18,8 @@ def db_connect(host, port, user, password, db):
 def valid_year(year):
     if year <= 2066 and year >= 2021:
         return True
+    else:
+        return False
 
 # Returns the indices of the years in the database
 # Returns False if the years are invalid
@@ -40,35 +42,40 @@ def testYears(startYear, endYear):
     return [startIndex, lastIndex]
 
 # Returns the indices of the years in the database
-def dbQuery(query, conn, suburbs, indices):
+def dbQuery(query, suburbs, indices):
+    conn = db_connect(
+        host=os.environ['host'], 
+        port=os.environ['port'], 
+        user=os.environ['user'], 
+        password=os.environ['password'], 
+        db=os.environ['db']
+    )
     curs = conn.cursor()
     cols = [constants.COLUMN_NAMES[0]] + constants.COLUMN_NAMES[indices[0]:indices[1]]
-    cols = str(cols).replace("[", "").replace("]", "")
+    cols = ', '.join(cols)
     if suburbs:
-        curs.execute(query, (cols, suburbs))
+        curs.execute(query % (cols, suburbs))
     else:
         curs.execute(query, (cols,))
     res = curs.fetchall()
     conn.close()
     return res
 
-def population(startYear, endYear, suburbs):
+def population(startYear, endYear, suburbs, sortPopBy="lga"):
     indices = testYears(startYear, endYear)
-    if type(indices[0]) == dict:
+    if isinstance(indices, dict):
         return indices
-    
-    if type(suburbs) != list:
+    elif indices[0] == indices[1]:
+        return {"Error": "Invalid start year", "Code": 400}
+    if not isinstance(suburbs, list):
         suburbs = [suburbs]
-    
-    # TODO: ADD DB CONNECTION
-    conn = db_connect(secret.host, secret.port, secret.user, secret.password, secret.db)
-    
+
     db_population_query = """SELECT %s 
         FROM population 
         WHERE lga IN %s
-        ORDER BY lga ASCENDING"""
+        ORDER BY lga ASC"""
     suburbs = str(suburbs).replace("[", "(").replace("]", ")")
-    res_suburbs = dbQuery(db_population_query, conn, suburbs, indices)
+    res_suburbs = dbQuery(db_population_query, suburbs, indices)
 
     # Ensure that data is correct
     if len(res_suburbs) == 0:
@@ -82,14 +89,12 @@ def populationAll(startYear, endYear):
     if not indices:
         return None
     
-    conn = db_connect(secret.host, secret.port, secret.user, secret.password, secret.db)
-    
     db_population_query = """SELECT %s 
         FROM population
-        ORDER BY lga ASCENDING"""
+        ORDER BY lga ASC"""
 
-    res_suburbs = dbQuery(db_population_query, conn, None, indices)
-    
+    res_suburbs = dbQuery(db_population_query, None, indices)
+
     if len(res_suburbs) == 0:
         return {"Error": "No suburb found", "Code": 400}
     

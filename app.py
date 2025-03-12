@@ -3,9 +3,9 @@ import retrival
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return jsonify(message="Hello from Flask on AWS Lambda!")
+# @app.route("/")
+# def home():
+#     return jsonify(message="Hello from Flask on AWS Lambda!")
 
 # Sample change
 @app.get("/population/v1")
@@ -19,8 +19,8 @@ def population(startYear, endYear, suburb):
     return jsonify(suburbPopulationEstimate=suburb[1:])
 
 @app.get("/populations/v1")
-def populations(startYear, endYear, suburb, sortPopBy, sortByStart):
-    suburb = retrival.populations(startYear, endYear, suburb, sortPopBy, sortByStart)
+def populations(startYear, endYear, suburb, sortPopBy):
+    suburb = retrival.populations(startYear, endYear, suburb, sortPopBy)
     if type(suburb) == dict:
         return Response(
             suburb["Error"], 
@@ -32,8 +32,8 @@ def populations(startYear, endYear, suburb, sortPopBy, sortByStart):
     return jsonify(suburbpopulationEstimate=ret_suburb)
 
 @app.get("/populations/all/v1")
-def populationsAll(startYear, endYear, sortPopBy, sortByStart):
-    suburb = retrival.populationAll(startYear, endYear, sortPopBy, sortByStart)
+def populationsAll(startYear, endYear, sortPopBy):
+    suburb = retrival.populationAll(startYear, endYear, sortPopBy)
     if type(suburb) == dict:
         return Response(
             suburb["Error"], 
