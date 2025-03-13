@@ -52,7 +52,7 @@ class populationUnitTest(unittest.TestCase):
         self.assertEquals("Start year is greater than end year", err)
     
     def invalidSuburb(self):
-        jsonResult = population(2021, 2022, "Auburn")
+        jsonResult = population(2021, 2022, "A")
         result = json.loads(jsonResult)
         err = result["Error"]
         self.assertEquals("No suburb found", err)

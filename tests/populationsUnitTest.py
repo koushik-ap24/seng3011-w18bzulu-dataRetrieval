@@ -4,28 +4,38 @@ from retrival.py import populations
 
 class populationsUnitTest(unittest.TestCase):
     def validYearRangeQuery(self):
-        jsonResult = populations(2021, 2030, "ERP", ["Ryde", "Albury", "Strathfield"])
+        suburbs = ["Ryde", "Albury", "Strathfield"]
+        jsonResult = populations(2021, 2025, "ERP", suburbs)
         result = json.loads(jsonResult)
         resultArr = result["suburbsPopulationEstimates"]
         self.assertEqual(len(resultArr), 3)
         for suburb in resultArr:
             self.assertEqual(len(suburb["estimates"]), 10)
+            self.assertListEqual(suburb["years"], [2021, 2022, 2023, 2024, 2025])
+            self.assertIn(suburb["suburb"], suburbs)
     
     def singleYearQuery(self):
-        jsonResult = populations(2022, 2022, "ERP", ["Burwood", "Ryde", "Albury", "Strathfield"])
+        suburbs = ["Burwood", "Ryde", "Albury", "Strathfield"]
+        jsonResult = populations(2022, 2022, "ERP", suburbs)
         result = json.loads(jsonResult)
         resultArr = result["suburbsPopulationEstimates"]
         self.assertEqual(len(resultArr), 4)
         for suburb in resultArr:
             self.assertEqual(len(suburb["estimates"]), 1)
+            self.assertListEqual(suburb["years"], [2022])
+            self.assertIn(suburb["suburb"], suburbs)
     
     def validMissingYearsQuery(self):
-        jsonResult = populations(2055, 2057, "ERP", ["Burwood", "Strathfield"])
+        suburbs = ["Burwood", "Strathfield"]
+        jsonResult = populations(2055, 2057, "ERP", suburbs)
         result = json.loads(jsonResult)
         resultArr = result["suburbsPopulationEstimates"]
         self.assertEqual(len(resultArr), 2)
         for suburb in resultArr:
             self.assertEqual(len(suburb["estimates"]), 1)
+            self.assertListEqual(suburb["years"], [2056])
+            self.assertIn(suburb["suburb"], suburbs)
+
         
     def invalidStartYear(self):
         jsonResult = populations(1998, 2026, "ERP", ["Ryde", "Albury", "Strathfield"])
