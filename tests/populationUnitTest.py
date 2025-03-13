@@ -18,6 +18,14 @@ class populationUnitTest(unittest.TestCase):
         yearArray = result["year"]
         self.assertEqual(len(estArray), 1)
         self.assertListEqual([2022], yearArray)
+
+    def validMissingYearsQuery(self):
+        jsonResult = population(2033, 2041, "Burwood")
+        result = json.loads(jsonResult)
+        estArray = result["suburbPopulationEstimate"]
+        yearArray = result["year"]
+        self.assertEqual(len(estArray), 2)
+        self.assertListEqual([2036, 2041], yearArray)
     
     def invalidEndYear(self):
         jsonResult = population(2021, 2088, "Albury")
@@ -32,7 +40,7 @@ class populationUnitTest(unittest.TestCase):
         self.assertEquals("Invalid start year", err)
 
     def invalidYearRange(self):
-        jsonResult = population(2026, 2040, "Albury")
+        jsonResult = population(2042, 2044, "Albury")
         result = json.loads(jsonResult)
         err = result["Error"]
         self.assertEquals("Invalid year range", err)
@@ -41,7 +49,7 @@ class populationUnitTest(unittest.TestCase):
         jsonResult = population(2021, 2022, "Auburn")
         result = json.loads(jsonResult)
         err = result["Error"]
-        self.assertEquals("DB does not have data for all suburbs", err)
+        self.assertEquals("No suburb found", err)
     
     def emptySuburb(self):
         jsonResult = population(2021, 2022, "")
