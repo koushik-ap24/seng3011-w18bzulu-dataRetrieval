@@ -13,17 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install dependencies
+      - name: Create directory structure
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          mkdir -p package  # Create a separate folder for dependencies
 
-      - name: Install zip commmand
+      - name: Copy application files to the root of the package
+        run: |
+          cp -r $(ls | grep -v 'package' | grep -v '.git') package/  # Copy application files to package root
+
+      - name: Install zip command
         uses: montudor/action-zip@v1
 
       - name: Create zip file for Lambda function
-        run:
-          zip -r code.zip .
+        run: |
+          cd package
+          zip -r ../code.zip .
 
       - name: AWS CLI v2
         uses: imehedi/actions-awscli-v2@latest
@@ -31,6 +35,32 @@ jobs:
           args: "lambda update-function-code \
             --function-name arn:aws:lambda:us-east-1:189474657107:function:flask_lambda \
             --zip-file fileb://code.zip"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_DEFAULT_REGION: "us-east-1"
+      
+      - name: Create Lambda Layer
+        run: |
+          mkdir -p python/lib/python3.12/site-packages
+          pip install -r requirements.txt -t python/lib/python3.12/site-packages
+          zip -r lambda-layer.zip python
+          cd ..
+        
+      - name: Deploy Lambda Layer
+        run: |
+          LAYER_VERSION=$(aws lambda publish-layer-version \
+            --layer-name my-dependencies-layer \
+            --description "Dependencies for Flask API" \
+            --zip-file fileb://lambda-layer.zip \
+            --compatible-runtimes python3.12 \
+            --output text --query 'LayerVersionArn')
+          
+          # Update Lambda function to use this layer
+          aws lambda update-function-configuration \
+            --function-name flask_lambda \
+            --layers $LAYER_VERSION
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from mangum import Mangum  # Required to make Flask Lambda-compatible
+import awsgi
 
 app = Flask(__name__)
 
@@ -7,4 +7,8 @@ app = Flask(__name__)
 def home():
     return jsonify(message="Hello from Flask on AWS Lambda!")
 
-handler = Mangum(app)
+def lambda_handler(event, context):
+    return awsgi.response(app, event, context, base64_content_types={"image/png"})
+
+if __name__ == "__main__":
+    app.run()
