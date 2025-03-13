@@ -1,32 +1,67 @@
 import unittest
+import json
 from retrival.py import populations
 
-class populationUnitTest(unittest.TestCase):
+class populationsUnitTest(unittest.TestCase):
     def validYearRangeQuery(self):
-        result = populations(2021, 2030, "ERP", True, ["Ryde", "Albury", "Strathfield"])
-        self.assertEqual(len(result), 3)
-        for suburb in result:
-            self.assertEqual(len(suburb["populationEstimates"]), 10)
+        jsonResult = populations(2021, 2030, "ERP", ["Ryde", "Albury", "Strathfield"])
+        result = json.loads(jsonResult)
+        resultArr = result["suburbsPopulationEstimates"]
+        self.assertEqual(len(resultArr), 3)
+        for suburb in resultArr:
+            self.assertEqual(len(suburb["estimates"]), 10)
     
     def singleYearQuery(self):
-        result = populations(2022, 2022, "ERP", True, ["Burwood", "Ryde", "Albury", "Strathfield"])
-        self.assertEqual(len(result), 4)
-        for suburb in result:
-            self.assertEqual(suburb["populationEstimates"], 1)
+        jsonResult = populations(2022, 2022, "ERP", ["Burwood", "Ryde", "Albury", "Strathfield"])
+        result = json.loads(jsonResult)
+        resultArr = result["suburbsPopulationEstimates"]
+        self.assertEqual(len(resultArr), 4)
+        for suburb in resultArr:
+            self.assertEqual(len(suburb["estimates"]), 1)
     
-    def descendingOrderQuery(self):
-        result = populations(2022, 2023, "ERP", False, ["Burwood", "Strathfield"])
-        self.assertGreater(len(result), 2)
-        for suburb in result:
-            self.assertEqual(len(suburb["populationEstimates"]), 2)
+    def validMissingYearsQuery(self):
+        jsonResult = populations(2055, 2057, "ERP", ["Burwood", "Strathfield"])
+        result = json.loads(jsonResult)
+        resultArr = result["suburbsPopulationEstimates"]
+        self.assertEqual(len(resultArr), 2)
+        for suburb in resultArr:
+            self.assertEqual(len(suburb["estimates"]), 1)
         
-    def invalidYearRangeQuery(self):
-        result = populations(2027, 2026, "ERP", True, ["Ryde", "Albury", "Strathfield"])
-        self.assertEqual(result, None)
+    def invalidStartYear(self):
+        jsonResult = populations(1998, 2026, "ERP", ["Ryde", "Albury", "Strathfield"])
+        result = json.loads(jsonResult)
+        err = result["Error"]
+        self.assertEquals("Invalid start year", err)
+
+    def invalidEndYear(self):
+        jsonResult = populations(2025, 2191, "ERP", ["Ryde", "Albury", "Strathfield"])
+        result = json.loads(jsonResult)
+        err = result["Error"]
+        self.assertEquals("Invalid end year", err)
+
+    def invalidYearOrder(self):
+        jsonResult = populations(2027, 2025, "ERP", ["Ryde", "Albury", "Strathfield"])
+        result = json.loads(jsonResult)
+        err = result["Error"]
+        self.assertEquals("Start year is greater than end year", err)
     
-    def invalidYearQuery(self):
-        result = populations(1899, 2021, "ERP", True, ["Ryde", "Albury", "Strathfield"])
-        self.assertEqual(result, None)
+    def invalidYearRange(self):
+        jsonResult = populations(2033, 2034, "ERP", ["Ryde", "Albury", "Strathfield"])
+        result = json.loads(jsonResult)
+        err = result["Error"]
+        self.assertEquals("Invalid year range", err)
+
+    def invalidSuburbs(self):
+        jsonResult = populations(2023, 2027, "ERP", ["A", "B", "C"])
+        result = json.loads(jsonResult)
+        err = result["Error"]
+        self.assertEquals("No suburb found", err)
+
+    def missingSuburb(self):
+        jsonResult = populations(2023, 2027, "ERP", ["Albury", "B"])
+        result = json.loads(jsonResult)
+        err = result["Error"]
+        self.assertEquals("DB does not have data for all suburbs", err)
 
 if __name__ == '__main__':
     unittest.main()

@@ -44,6 +44,12 @@ class populationUnitTest(unittest.TestCase):
         result = json.loads(jsonResult)
         err = result["Error"]
         self.assertEquals("Invalid year range", err)
+
+    def invalidYearOrder(self):
+        jsonResult = population(2030, 2021, "Albury")
+        result = json.loads(jsonResult)
+        err = result["Error"]
+        self.assertEquals("Start year is greater than end year", err)
     
     def invalidSuburb(self):
         jsonResult = population(2021, 2022, "Auburn")
