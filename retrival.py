@@ -35,11 +35,24 @@ def testYears(startYear, endYear):
         # check if there is a valid year between start and end
         if (endYear - (endYear - 1) % 5) < startYear:
             return {"Error": "Invalid year range", "Code": 400}
+    
     startDiff = startYear - 2021
     endDiff = endYear - 2021
     startIndex = startDiff + 1 if startDiff <= 10 else 11 + math.ceil((startDiff - 10) / 5)
     lastIndex = endDiff + 2 if endDiff <= 10 else 12 + math.ceil((endDiff - 10) / 5)
+
     return [startIndex, lastIndex]
+
+# Assumes that the years are valid before using testYears
+def findYears(startYear, endYear):
+    years = []
+    indices = testYears(startYear, endYear)
+    for i in range(indices[0], indices[1]):
+        if i <= 11:
+            years.append(2020 + i)
+        else:
+            years.append(2021 + 5 * (i - 11))
+    return years
 
 # Returns the indices of the years in the database
 def dbQuery(query, suburbs, indices):
@@ -67,6 +80,8 @@ def population(startYear, endYear, suburbs, sortPopBy="lga"):
         return indices
     if indices[0] == indices[1]:
         return {"Error": "Invalid start year", "Code": 400}
+    if suburbs == "":
+        return {"Error": "No suburb found", "Code": 400}
     if not isinstance(suburbs, list):
         suburbs = [suburbs]
 
