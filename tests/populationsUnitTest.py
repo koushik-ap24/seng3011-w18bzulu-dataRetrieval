@@ -20,7 +20,7 @@ class TestPopulations():
     def helperInvalidQuery(self, start, end, suburbs, errMsg):
         jsonResult = populations(start, end, "ERP", suburbs)
         result = json.loads(jsonResult)
-        assert errMsg == result["Error"]
+        assert errMsg == result["error"]
 
     def testValidYearRangeQuery(self):
         suburbs = ["Ryde", "Albury", "Strathfield"]
