@@ -3,15 +3,12 @@ import math
 import constants
 import os
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def db_connect(host, port, user, password, db):
-    conn = psycopg.connect(
-        host,
-        port,
-        user,
-        password,
-        db
-    )
+    conn = psycopg.connect("host=" + host + " port=" + port + " dbname=" + db + " user=" + user + " password=" + password + " connect_timeout=10")
     conn.autocommit = True # ???
 
     return conn
