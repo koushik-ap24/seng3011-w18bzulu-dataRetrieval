@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def db_connect(host, port, user, password, db):
-    conn = psycopg.connect("host=" + host + " port=" + port + " dbname=" + db + " user=" + user + " password=" + password + " connect_timeout=10")
+    conn = psycopg.connect("host=" + host + " port=" + port + " dbname=" + db + " user=" + user + " password=" + password + " connect_timeout=4")
     conn.autocommit = True # ???
 
     return conn
@@ -37,7 +37,7 @@ def testYears(startYear, endYear):
     startDiff = startYear - 2021
     endDiff = endYear - 2021
     startIndex = startDiff + 1 if startDiff <= 10 else 11 + math.ceil((startDiff - 10) / 5)
-    lastIndex = endDiff + 2 if endDiff <= 10 else 12 + math.ceil((endDiff - 10) / 5)
+    lastIndex = endDiff + 2 if endDiff <= 10 else 12 + math.floor((endDiff - 10) / 5)
 
     return [startIndex, lastIndex]
 
@@ -49,11 +49,11 @@ def findYears(startYear, endYear):
         if i <= 11:
             years.append(2020 + i)
         else:
-            years.append(2021 + 5 * (i - 11))
+            years.append(2031 + 5 * (i - 11))
     return years
 
 # Returns the indices of the years in the database
-def dbQuery(query, suburbs, indices):
+def dbQuery(query, suburbs):
     conn = db_connect(
         host=os.environ['host'], 
         port=os.environ['port'], 
@@ -62,13 +62,13 @@ def dbQuery(query, suburbs, indices):
         db=os.environ['db']
     )
     curs = conn.cursor()
-    cols = [constants.COLUMN_NAMES[0]] + constants.COLUMN_NAMES[indices[0]:indices[1]]
-    cols = ', '.join(cols)
+    
     if suburbs:
-        curs.execute(query % (cols, '%s'), (suburbs,))
+        curs.execute(query, (suburbs,))
     else:
-        curs.execute(query, (cols,))
+        curs.execute(query)
     res = curs.fetchall()
+    curs.close()
     conn.close()
     return res
 
@@ -83,12 +83,14 @@ def population_helper(startYear, endYear, suburbs, sortPopBy="lga"):
     if not isinstance(suburbs, list):
         suburbs = [suburbs]
 
-    db_population_query = """SELECT %s 
+    db_population_query = """SELECT *
         FROM population 
-        WHERE lga IN %s
+        WHERE lga = ANY (%s)
         ORDER BY lga ASC"""
-    suburbs = str(suburbs).replace("[", "(").replace("]", ")")
-    res_suburbs = dbQuery(db_population_query, suburbs, indices)
+    res = dbQuery(db_population_query, suburbs)
+    res_suburbs = []
+    for i in range(len(res)):
+        res_suburbs.append([res[i][0]] + list(res[i][indices[0]:indices[1]]))
 
     # Ensure that data is correct
     if len(res_suburbs) == 0:
@@ -100,24 +102,25 @@ def population_helper(startYear, endYear, suburbs, sortPopBy="lga"):
 def population(startYear, endYear, suburb):
     suburb = population_helper(startYear, endYear, suburb)
     if isinstance(suburb, dict):
-        return json.dump(
-            suburb["Error"], 
-            status=suburb["Code"]
-        )
-    return json.dump(suburbPopulationEstimate=suburb[1:], years=findYears(startYear, endYear))
+        return json.dumps({
+            "Error": suburb["Error"], 
+            "status": suburb["Code"]
+        })
+    suburb = suburb[0]
+    return json.dumps({"suburbPopulationEstimate": suburb[1:], "year": findYears(startYear, endYear)})
 
 def populations(startYear, endYear, sortPopBy, suburbs):
     suburb = population_helper(startYear, endYear, suburbs, sortPopBy)
     if isinstance(suburb, dict):
-        return json(
-            suburb["Error"], 
-            status=suburb["Code"]
-        )
+        return json.dumps({
+            "Error": suburb["Error"], 
+            "status": suburb["Code"]
+        })
     years = findYears(startYear, endYear)
     ret_suburb = [] 
     for i in range(len(suburb)):
-        ret_suburb.append(json.dump(suburb=suburb[i][0], estimate=suburb[i][1:], years=years))
-    return json.dump(suburbpopulationEstimate=ret_suburb)
+        ret_suburb.append({"suburb": suburb[i][0], "estimates": suburb[i][1:], "years": years})
+    return json.dumps({"suburbsPopulationEstimates":ret_suburb})
 
 def populationAll(startYear, endYear):
     indices = testYears(startYear, endYear)

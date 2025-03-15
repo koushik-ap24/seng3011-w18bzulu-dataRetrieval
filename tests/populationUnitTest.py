@@ -27,7 +27,7 @@ class TestPopulation():
         self.helperValidQuery(2022, 2022, "Burwood", 1, [2022])
 
     def testValidMissingYearsQuery(self):
-        self.helperValidQuery(2026, 2028, "Burwood", 2, [2036, 2041])
+        self.helperValidQuery(2035, 2037, "Burwood", 1, [2036])
     
     def testInvalidEndYear(self):
         self.helperInvalidQuery(2021, 2088, "Albury", "Invalid end year")
@@ -46,3 +46,4 @@ class TestPopulation():
     
     def testEmptySuburb(self):
         self.helperInvalidQuery(2021, 2022, "", "No suburb found")
+ 
