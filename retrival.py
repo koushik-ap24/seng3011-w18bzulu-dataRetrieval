@@ -2,6 +2,7 @@ import psycopg
 import math
 import constants
 import os
+import json
 
 def db_connect(host, port, user, password, db):
     conn = psycopg.connect(
@@ -57,11 +58,11 @@ def findYears(startYear, endYear):
 # Returns the indices of the years in the database
 def dbQuery(query, suburbs, indices):
     conn = db_connect(
-        host=os.environ['host'], 
-        port=os.environ['port'], 
-        user=os.environ['user'], 
-        password=os.environ['password'], 
-        db=os.environ['db']
+        host=os.environ['DB_HOST'], 
+        port=os.environ['DB_PORT'], 
+        user=os.environ['DB_USER'], 
+        password=os.environ['DB_PASSWORD'], 
+        db=os.environ['DB_NAME']
     )
     curs = conn.cursor()
     cols = [constants.COLUMN_NAMES[0]] + constants.COLUMN_NAMES[indices[0]:indices[1]]
@@ -74,7 +75,7 @@ def dbQuery(query, suburbs, indices):
     conn.close()
     return res
 
-def population(startYear, endYear, suburbs, sortPopBy="lga"):
+def population_helper(startYear, endYear, suburbs, sortPopBy="lga"):
     indices = testYears(startYear, endYear)
     if isinstance(indices, dict):
         return indices
@@ -98,6 +99,28 @@ def population(startYear, endYear, suburbs, sortPopBy="lga"):
     elif len(res_suburbs) != len(suburbs):
         return {"Error": "DB does not have data for all suburbs", "Code": 400}
     return res_suburbs
+
+def population(startYear, endYear, suburb):
+    suburb = population_helper(startYear, endYear, suburb)
+    if isinstance(suburb, dict):
+        return json.dump(
+            suburb["Error"], 
+            status=suburb["Code"]
+        )
+    return json.dump(suburbPopulationEstimate=suburb[1:], years=findYears(startYear, endYear))
+
+def populations(startYear, endYear, sortPopBy, suburbs):
+    suburb = population_helper(startYear, endYear, suburbs, sortPopBy)
+    if isinstance(suburb, dict):
+        return json(
+            suburb["Error"], 
+            status=suburb["Code"]
+        )
+    years = findYears(startYear, endYear)
+    ret_suburb = [] 
+    for i in range(len(suburb)):
+        ret_suburb.append(json.dump(suburb=suburb[i][0], estimate=suburb[i][1:], years=years))
+    return json.dump(suburbpopulationEstimate=ret_suburb)
 
 def populationAll(startYear, endYear):
     indices = testYears(startYear, endYear)

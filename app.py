@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, Response
 import retrival
+import json
 
 app = Flask(__name__)
 
@@ -11,26 +12,24 @@ app = Flask(__name__)
 @app.get("/population/v1")
 def population(startYear, endYear, suburb):
     suburb = retrival.population(startYear, endYear, suburb)
-    if type(suburb) == dict:
+    suburb_info = json.loads(suburb)
+    if suburb_info["Error"]:
         return Response(
-            suburb["Error"], 
-            status=suburb["Code"]
+            suburb_info["Error"], 
+            status=suburb_info["Code"]
         )
-    return jsonify(suburbPopulationEstimate=suburb[1:], years=retrival.findYears(startYear, endYear))
+    return suburb
 
 @app.get("/populations/v1")
-def populations(startYear, endYear, suburb, sortPopBy):
-    suburb = retrival.populations(startYear, endYear, suburb, sortPopBy)
-    if type(suburb) == dict:
+def populations(startYear, endYear, sortPopBy, suburb):
+    suburbs = retrival.populations(startYear, endYear, sortPopBy, suburb)
+    suburb_info = json.loads(suburbs)
+    if suburb_info["Error"]:
         return Response(
-            suburb["Error"], 
-            status=suburb["Code"]
+            suburb_info["Error"], 
+            status=suburb_info["Code"]
         )
-    years = retrival.findYears(startYear, endYear)
-    ret_suburb = [] 
-    for i in range(len(suburb)):
-        ret_suburb.append(jsonify(suburb=suburb[i][0], estimate=suburb[i][1:], years=years))
-    return jsonify(suburbpopulationEstimate=ret_suburb)
+    return suburbs
 
 @app.get("/populations/all/v1")
 def populationsAll(startYear, endYear, sortPopBy):
