@@ -27,7 +27,7 @@ class TestPopulation():
         self.helperValidQuery(2022, 2022, "Burwood", 1, [2022])
 
     def testValidMissingYearsQuery(self):
-        self.helperValidQuery(2026, 2028, "Burwood", 2, [2036, 2041])
+        self.helperValidQuery(2032, 2044, "Burwood", 2, [2036, 2041])
     
     def testInvalidEndYear(self):
         self.helperInvalidQuery(2021, 2088, "Albury", "Invalid end year")

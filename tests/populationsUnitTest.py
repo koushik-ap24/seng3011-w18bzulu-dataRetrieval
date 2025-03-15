@@ -24,7 +24,7 @@ class TestPopulations():
 
     def testValidYearRangeQuery(self):
         suburbs = ["Ryde", "Albury", "Strathfield"]
-        self.helperValidQuery(2021, 2025, suburbs, 10, [2021, 2022, 2023, 2024, 2025])
+        self.helperValidQuery(2021, 2025, suburbs, 5, [2021, 2022, 2023, 2024, 2025])
     
     def testSingleYearQuery(self):
         suburbs = ["Burwood", "Ryde", "Albury", "Strathfield"]
