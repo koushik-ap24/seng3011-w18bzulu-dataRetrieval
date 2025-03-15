@@ -7,7 +7,7 @@ sys.path.append(parent_dir)
 
 try:
     from retrival import population
-except:
+except ImportError:
     # Skip tests if retrieval.py or population() don't exist
     pytest.skip(reason="could not import population", allow_module_level=True)
 
