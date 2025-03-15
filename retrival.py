@@ -58,11 +58,11 @@ def findYears(startYear, endYear):
 # Returns the indices of the years in the database
 def dbQuery(query, suburbs, indices):
     conn = db_connect(
-        host=os.environ['DB_HOST'], 
-        port=os.environ['DB_PORT'], 
-        user=os.environ['DB_USER'], 
-        password=os.environ['DB_PASSWORD'], 
-        db=os.environ['DB_NAME']
+        host=os.environ['host'], 
+        port=os.environ['port'], 
+        user=os.environ['user'], 
+        password=os.environ['password'], 
+        db=os.environ['db']
     )
     curs = conn.cursor()
     cols = [constants.COLUMN_NAMES[0]] + constants.COLUMN_NAMES[indices[0]:indices[1]]

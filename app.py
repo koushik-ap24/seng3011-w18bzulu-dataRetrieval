@@ -1,12 +1,16 @@
 from flask import Flask, jsonify, Response
 import retrival
 import json
+import awsgi
 
 app = Flask(__name__)
 
-# @app.route("/")
-# def home():
-#     return jsonify(message="Hello from Flask on AWS Lambda!")
+@app.route("/")
+def home():
+    return jsonify(message="Hello from Flask on AWS Lambda!")
+
+def lambda_handler(event, context):
+    return awsgi.response(app, event, context, base64_content_types={"image/png"})
 
 # Sample change
 @app.get("/population/v1")
@@ -44,3 +48,9 @@ def populationsAll(startYear, endYear, sortPopBy):
     for i in range(len(suburb)):
         ret_suburb.append(jsonify(suburb=suburb[i][0], estimate=suburb[i][1:], years=years))
     return jsonify(suburbpopulationEstimate=ret_suburb)
+
+def lambda_handler(event, context):
+    return awsgi.response(app, event, context, base64_content_types={"image/png"})
+
+if __name__ == "__main__":
+    app.run()
