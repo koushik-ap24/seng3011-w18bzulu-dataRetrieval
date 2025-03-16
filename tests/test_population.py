@@ -15,15 +15,15 @@ class TestPopulation():
     def helperValidQuery(self, start, end, suburb, expectedEst, expectedYears):
         jsonResult = population(start, end, suburb)
         result = json.loads(jsonResult)
-        estArray = result["suburbPopulationEstimate"]
-        yearArray = result["year"]
+        estArray = result["suburbPopulationEstimates"]
+        yearArray = result["years"]
         assert expectedEst == len(estArray)
         assert yearArray == expectedYears
 
     def helperInvalidQuery(self, start, end, suburb, errMsg):
         jsonResult = population(start, end, suburb)
         result = json.loads(jsonResult)
-        assert errMsg == result["Error"]
+        assert errMsg == result["error"]
 
     def testValidYearRangeQuery(self):
        self.helperValidQuery(2026, 2028, "Ryde", 3, [2026, 2027, 2028])
