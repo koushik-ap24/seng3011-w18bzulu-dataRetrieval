@@ -6,7 +6,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 
 try:
-    from retrival import population
+    from retrieval import population
 except ImportError:
     # Skip tests if retrieval.py or population() don't exist
     pytest.skip(reason="could not import population", allow_module_level=True)
