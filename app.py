@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, request
 import retrieval
 import json
 import awsgi
@@ -17,7 +17,10 @@ def lambda_handler(event, context):
 
 # Sample change
 @app.get("/population/v1")
-def population(startYear, endYear, suburb):
+def population():
+    suburb = request.args.get("suburb")
+    startYear = request.args.get("startYear")
+    endYear = request.args.get("endYear")
     suburb = retrieval.population(startYear, endYear, suburb)
     suburb_info = json.loads(suburb)
     if suburb_info.has_key("error"):
@@ -26,8 +29,12 @@ def population(startYear, endYear, suburb):
 
 
 @app.get("/populations/v1")
-def populations(startYear, endYear, sortPopBy, suburb):
-    suburbs = retrieval.populations(startYear, endYear, sortPopBy, suburb)
+def populations():
+    suburbs = request.args.get("suburbs")[1:-1].split(",")
+    startYear = request.args.get("startYear")
+    endYear = request.args.get("endYear")
+    sortPopBy = request.args.get("sortPopBy")
+    suburbs = retrieval.populations(startYear, endYear, sortPopBy, suburbs)
     suburb_info = json.loads(suburbs)
     if suburb_info.has_key("error"):
         return Response(suburb_info["error"], status=suburb_info["code"])
