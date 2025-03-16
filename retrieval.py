@@ -144,7 +144,6 @@ def populations(startYear, endYear, sortPopBy, suburbs):
         )
     return json.dumps({"suburbPopulationEstimates": ret_suburb})
 
-
 # def populationAll(startYear, endYear):
 #     indices = testYears(startYear, endYear)
 #     if not indices:
