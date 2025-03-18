@@ -75,11 +75,11 @@ def dbQuery(query, suburbs):
     conn = db_connect(
         host=os.getenv("HOST"),
         port=os.getenv("PORT"),
-        user=os.getenv("USER"),
+        user=os.getenv("DB_USER"),
         password=os.getenv("PASSWORD"),
         db=os.getenv("DB"),
     )
-    print(os.getenv("HOST"))
+
     curs = conn.cursor()
 
     if suburbs:

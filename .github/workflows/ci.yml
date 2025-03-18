@@ -43,7 +43,7 @@ jobs:
         echo "PORT=${{ secrets.PORT }}" >> .env
         echo "USER=${{ secrets.USER }}" >> .env
         echo "PASSWORD=${{ secrets.PASSWORD }}" >> .env
-        echo "DB=${{ secrets.DB }}" >> .env
+        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
     
 
     - name: Run tests and generate coverage report
