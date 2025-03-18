@@ -36,6 +36,12 @@ jobs:
         pip install ruff pytest-cov mypy
         pip install -r requirements.txt
 
+    - name: Debug Environment Variables
+      run: |
+        echo "HOST=${{ secrets.HOST }}"
+        echo "DB=${{ secrets.DB }}"
+        echo "PORT=${{ secrets.PORT }}"
+
     - name: Lint with Ruff
       run: ruff check --output-format=github
 
