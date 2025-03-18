@@ -37,23 +37,19 @@ jobs:
       run: ruff format --diff
       continue-on-error: true
     
-    - name: Debug db connection
+    - name: Create .env file
       run: |
-        echo "Attempting to connect to host: ${host}"
-        nslookup ${host} || echo "Hostname does not resolve"
-      env:
-        host: ${{ secrets.HOST }}
+        echo "HOST=${{ secrets.HOST }}" > .env
+        echo "PORT=${{ secrets.PORT }}" >> .env
+        echo "USER=${{ secrets.USER }}" >> .env
+        echo "PASSWORD=${{ secrets.PASSWORD }}" >> .env
+        echo "DB=${{ secrets.DB }}" >> .env
+    
 
     - name: Run tests and generate coverage report
       run: |
         echo -e "[run]\nomit = tests/*" > .coveragerc   # Exclude test files from code coverage report
         pytest --junitxml=pytest.xml --cov-report term-missing --cov-report xml:coverage.xml --cov=./ tests/
-      env:
-        host: ${{ secrets.HOST }}
-        db: ${{ secrets.DB }}
-        password: ${{ secrets.PASSWORD }}
-        port: ${{ secrets.PORT }}
-        user: ${{ secrets.USER }}
 
     - name: Comment on coverage report
       uses: MishaKav/pytest-coverage-comment@main
