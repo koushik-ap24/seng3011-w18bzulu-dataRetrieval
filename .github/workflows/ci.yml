@@ -10,12 +10,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      host: ${{ secrets.HOST }}
-      db: ${{ secrets.DB }}
-      password: ${{ secrets.PASSWORD }}
-      port: ${{ secrets.PORT }}
-      user: ${{ secrets.USER }}
-    
+      HOST: ${{ secrets.HOST }}
+      DB: ${{ secrets.DB }}
+      PASSWORD: ${{ secrets.PASSWORD }}
+      PORT: ${{ secrets.PORT }}
+      USER: ${{ secrets.USER }}
+
     permissions:
       contents: write
       checks: write
