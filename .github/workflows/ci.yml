@@ -9,12 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      HOST: ${{ secrets.HOST }}
-      DB: ${{ secrets.DB }}
-      PASSWORD: ${{ secrets.PASSWORD }}
-      PORT: ${{ secrets.PORT }}
-      USER: ${{ secrets.USER }}
 
     permissions:
       contents: write
@@ -36,23 +30,30 @@ jobs:
         pip install ruff pytest-cov mypy
         pip install -r requirements.txt
 
-    - name: Debug Environment Variables
-      run: |
-        echo "HOST=${{ secrets.HOST }}"
-        echo "DB=${{ secrets.DB }}"
-        echo "PORT=${{ secrets.PORT }}"
-
     - name: Lint with Ruff
       run: ruff check --output-format=github
 
     - name: Check code formatting with Ruff
       run: ruff format --diff
       continue-on-error: true
+    
+    - name: Debug db connection
+      run: |
+        echo "Attempting to connect to host: ${host}"
+        nslookup ${host} || echo "Hostname does not resolve"
+      env:
+        host: ${{ secrets.HOST }}
 
     - name: Run tests and generate coverage report
       run: |
         echo -e "[run]\nomit = tests/*" > .coveragerc   # Exclude test files from code coverage report
         pytest --junitxml=pytest.xml --cov-report term-missing --cov-report xml:coverage.xml --cov=./ tests/
+      env:
+        host: ${{ secrets.HOST }}
+        db: ${{ secrets.DB }}
+        password: ${{ secrets.PASSWORD }}
+        port: ${{ secrets.PORT }}
+        user: ${{ secrets.USER }}
 
     - name: Comment on coverage report
       uses: MishaKav/pytest-coverage-comment@main
