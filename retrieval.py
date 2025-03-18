@@ -142,7 +142,7 @@ def populations(startYear, endYear, sortPopBy, suburbs):
         ret_suburb.append(
             {"suburb": suburb[i][0], "estimates": suburb[i][1:], "years": years}
         )
-    return json.dumps({"suburbPopulationEstimates": ret_suburb})
+    return json.dumps({"suburbsPopulationEstimates": ret_suburb})
 
 # def populationAll(startYear, endYear):
 #     indices = testYears(startYear, endYear)
