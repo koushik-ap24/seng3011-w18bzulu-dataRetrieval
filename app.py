@@ -12,18 +12,37 @@ def home():
 
 
 def lambda_handler(event, context):
+    if 'httpMethod' not in event:
+        if 'requestContext' in event and 'http' in event['requestContext']:
+            # Convert API Gateway v2 format to the format awsgi expects
+            return awsgi.response(app, convert_v2_to_v1(event), context, base64_content_types={"image/png"})
+        return {
+            'statusCode': 200,
+            'body': json.dumps({'message': 'This endpoint should be accessed through API Gateway'})
+        }
     return awsgi.response(app, event, context, base64_content_types={"image/png"})
+
+def convert_v2_to_v1(event):
+    v1_event = {
+        'httpMethod': event['requestContext']['http']['method'],
+        'path': event['requestContext']['http']['path'],
+        'headers': event['headers'],
+        'queryStringParameters': event.get('queryStringParameters', {}),
+        'body': event.get('body', ''),
+        'isBase64Encoded': event.get('isBase64Encoded', False)
+    }
+    return v1_event
 
 
 # Sample change
 @app.get("/population/v1")
 def population():
     suburb = request.args.get("suburb")
-    startYear = request.args.get("startYear")
-    endYear = request.args.get("endYear")
+    startYear = int(request.args.get("startYear"))
+    endYear = int(request.args.get("endYear"))
     suburb = retrieval.population(startYear, endYear, suburb)
     suburb_info = json.loads(suburb)
-    if suburb_info.has_key("error"):
+    if "error" in suburb_info:
         return Response(suburb_info["error"], status=suburb_info["code"])
     return suburb
 
@@ -31,12 +50,12 @@ def population():
 @app.get("/populations/v1")
 def populations():
     suburbs = request.args.get("suburbs")[1:-1].split(",")
-    startYear = request.args.get("startYear")
-    endYear = request.args.get("endYear")
+    startYear = int(request.args.get("startYear"))
+    endYear = int(request.args.get("endYear"))
     sortPopBy = request.args.get("sortPopBy")
     suburbs = retrieval.populations(startYear, endYear, sortPopBy, suburbs)
     suburb_info = json.loads(suburbs)
-    if suburb_info.has_key("error"):
+    if "error" in suburb_info:
         return Response(suburb_info["error"], status=suburb_info["code"])
     return suburbs
 
