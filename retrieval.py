@@ -79,6 +79,7 @@ def dbQuery(query, suburbs):
         password=os.getenv("PASSWORD"),
         db=os.getenv("DB"),
     )
+    print(os.getenv("HOST"))
     curs = conn.cursor()
 
     if suburbs:
