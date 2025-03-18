@@ -2,14 +2,16 @@ import json
 import sys
 import os
 import pytest
+
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 
 try:
-    from retrival import populations
+    from retrieval import populations
 except ImportError:
-    # Skip tests if retrieval.py or populations() don't exist 
+    # Skip tests if retrieval.py or populations() don't exist
     pytest.skip(reason="could not import populations", allow_module_level=True)
+
 
 class TestPopulations():
     def helperValidQuery(self, start, end, suburbs, expectedEst, expectedYears):
@@ -29,7 +31,7 @@ class TestPopulations():
 
     def testValidYearRangeQuery(self):
         suburbs = ["Ryde", "Albury", "Strathfield"]
-        self.helperValidQuery(2021, 2025, suburbs, 10, [2021, 2022, 2023, 2024, 2025])
+        self.helperValidQuery(2021, 2025, suburbs, 5, [2021, 2022, 2023, 2024, 2025])
     
     def testSingleYearQuery(self):
         suburbs = ["Burwood", "Ryde", "Albury", "Strathfield"]

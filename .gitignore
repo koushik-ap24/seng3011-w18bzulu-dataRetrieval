@@ -9,3 +9,5 @@ env/
 
 # pytest files
 .pytest_cache/
+.env
+secret.py

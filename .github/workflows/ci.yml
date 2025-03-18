@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
       checks: write
@@ -35,6 +36,15 @@ jobs:
     - name: Check code formatting with Ruff
       run: ruff format --diff
       continue-on-error: true
+    
+    - name: Create .env file
+      run: |
+        echo "HOST=${{ secrets.HOST }}" > .env
+        echo "PORT=${{ secrets.PORT }}" >> .env
+        echo "DB=${{ secrets.DB }}" >> .env
+        echo "PASSWORD=${{ secrets.PASSWORD }}" >> .env
+        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+    
 
     - name: Run tests and generate coverage report
       run: |
