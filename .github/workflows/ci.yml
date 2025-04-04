@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  dev:
     runs-on: ubuntu-latest
 
     permissions:
@@ -60,3 +60,24 @@ jobs:
     - name: Run type checking with mypy
       run: mypy ./ --check-untyped-defs --disable-error-code=import-untyped
       continue-on-error: true
+
+  staging:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
+      - name: Install Newman dependency
+      - run: |
+          npm install newman
+
+      - name: Run Postman tests with Newman
+      - run: |
+          newman run postman/ZULU_retrieval.postman_collection.json -r cli,junit \
+            --reporter-junit-export postman
