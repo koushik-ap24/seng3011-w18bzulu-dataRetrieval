@@ -3,7 +3,8 @@ name: Deploy Flask App to AWS Lambda
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main
+      - dev
 
 jobs:
   deploy:
@@ -14,22 +15,21 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Create directory structure
-        run: |
-          mkdir -p package  # Create a separate folder for dependencies
+        run: mkdir -p package
 
-      - name: Copy application files to the root of the package
+      - name: Copy application files to package
         run: |
-          cp -r $(ls | grep -v 'package' | grep -v '.git') package/  # Copy application files to package root
+          cp -r $(ls | grep -v 'package' | grep -v '.git') package/
 
       - name: Install zip command
         uses: montudor/action-zip@v1
 
-      - name: Create zip file for Lambda function
+      - name: Create zip for Lambda function
         run: |
           cd package
           zip -r ../code.zip .
 
-      - name: AWS CLI v2
+      - name: Upload Lambda function code
         uses: imehedi/actions-awscli-v2@latest
         with:
           args: "lambda update-function-code \
@@ -39,15 +39,15 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "us-east-2"
-      
+
       - name: Create Lambda Layer
         run: |
           mkdir -p python/lib/python3.12/site-packages
           pip install -r requirements.txt -t python/lib/python3.12/site-packages
           zip -r lambda-layer.zip python
-          cd ..
-        
-      - name: Deploy Lambda Layer
+        shell: bash
+
+      - name: Deploy Lambda Layer and attach to function
         run: |
           LAYER_VERSION=$(aws lambda publish-layer-version \
             --layer-name my-dependencies-layer \
@@ -55,8 +55,7 @@ jobs:
             --zip-file fileb://lambda-layer.zip \
             --compatible-runtimes python3.12 \
             --output text --query 'LayerVersionArn')
-          
-          # Update Lambda function to use this layer
+
           aws lambda update-function-configuration \
             --function-name seng3011_dataRetrieval \
             --layers $LAYER_VERSION
@@ -64,3 +63,46 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "us-east-2"
+
+      - name: Wait for function update to complete
+        run: |
+          aws lambda wait function-updated \
+            --function-name seng3011_dataRetrieval
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "us-east-2"
+
+      - name: Publish Lambda version
+        id: publish
+        run: |
+          VERSION=$(aws lambda publish-version \
+            --function-name seng3011_dataRetrieval \
+            --output text --query 'Version')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "us-east-2"
+
+      - name: Create or update Lambda alias
+        run: |
+          ALIAS_NAME=$([[ "${GITHUB_REF##*/}" == "main" ]] && echo "prod" || echo "dev")
+          echo "Setting alias to $ALIAS_NAME -> version $VERSION"
+
+          if aws lambda get-alias --function-name seng3011_dataRetrieval --name $ALIAS_NAME > /dev/null 2>&1; then
+            aws lambda update-alias \
+              --function-name seng3011_dataRetrieval \
+              --name $ALIAS_NAME \
+              --function-version $VERSION
+          else
+            aws lambda create-alias \
+              --function-name seng3011_dataRetrieval \
+              --name $ALIAS_NAME \
+              --function-version $VERSION
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "us-east-2"
+          VERSION: ${{ env.VERSION }}
