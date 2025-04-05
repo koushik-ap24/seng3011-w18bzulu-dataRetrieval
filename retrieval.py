@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
+# Helper function to establish connection to postgres DB.
 def db_connect(host, port, user, password, db):
     conn = psycopg.connect(
         "host="
