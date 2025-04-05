@@ -156,7 +156,7 @@ def populations(startYear, endYear, sortPopBy, suburbs):
 
 #     res_suburbs = dbQuery(db_population_query, None)
 
-#     # if len(res_suburbs) == 0:
-#     #     return {"error": "No suburb found", "code": 400}
+#     if len(res_suburbs) == 0:
+#         return {"error": "No suburb found", "code": 400}
 
 #     return res_suburbs
