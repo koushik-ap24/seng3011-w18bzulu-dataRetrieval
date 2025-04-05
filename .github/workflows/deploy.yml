@@ -33,13 +33,12 @@ jobs:
         uses: imehedi/actions-awscli-v2@latest
         with:
           args: "lambda update-function-code \
-            --function-name arn:aws:lambda:us-east-1:189474657107:function:flask_lambda \
+            --function-name arn:aws:lambda:us-east-2:967549389290:function:seng3011_dataRetrieval \
             --zip-file fileb://code.zip"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_DEFAULT_REGION: "us-east-1"
+          AWS_DEFAULT_REGION: "us-east-2"
       
       - name: Create Lambda Layer
         run: |
@@ -59,10 +58,9 @@ jobs:
           
           # Update Lambda function to use this layer
           aws lambda update-function-configuration \
-            --function-name flask_lambda \
+            --function-name seng3011_dataRetrieval \
             --layers $LAYER_VERSION
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_DEFAULT_REGION: "us-east-1"
+          AWS_DEFAULT_REGION: "us-east-2"
