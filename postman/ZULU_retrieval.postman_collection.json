@@ -1,0 +1,679 @@
+{
+	"info": {
+		"_postman_id": "bb58d57a-dc8f-40da-bed9-b7656311ea63",
+		"name": "ZULU_retrieval",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43635246",
+		"_collection_link": "https://callum-4899299.postman.co/workspace/Callum's-Workspace~385a68d0-313f-4fd9-8da3-c6986172f8bc/collection/43635246-bb58d57a-dc8f-40da-bed9-b7656311ea63?action=share&source=collection_link&creator=43635246"
+	},
+	"item": [
+		{
+			"name": "population/v1",
+			"item": [
+				{
+					"name": "200: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/population/v1?startYear=2021&endYear=2066&suburb=Liverpool",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"population",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2021"
+								},
+								{
+									"key": "endYear",
+									"value": "2066"
+								},
+								{
+									"key": "suburb",
+									"value": "Liverpool"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: Invalid start year",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid start year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Invalid start year\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/population/v1?startYear=2020&endYear=2066&suburb=Liverpool",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"population",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2020"
+								},
+								{
+									"key": "endYear",
+									"value": "2066"
+								},
+								{
+									"key": "suburb",
+									"value": "Liverpool"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: Invalid end year",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Invalid end year\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/population/v1?startYear=2021&endYear=2070&suburb=Liverpool",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"population",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2021"
+								},
+								{
+									"key": "endYear",
+									"value": "2070"
+								},
+								{
+									"key": "suburb",
+									"value": "Liverpool"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: No suburb found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 No suburb found\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"No suburb found\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/population/v1?startYear=2021&endYear=2066&suburb=Balmain",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"population",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2021"
+								},
+								{
+									"key": "endYear",
+									"value": "2066"
+								},
+								{
+									"key": "suburb",
+									"value": "Balmain"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: Start year is greater than end year",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Start year is greater than end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Start year is greater than end year\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/population/v1?startYear=2040&endYear=2030&suburb=Liverpool",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"population",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2040"
+								},
+								{
+									"key": "endYear",
+									"value": "2030"
+								},
+								{
+									"key": "suburb",
+									"value": "Liverpool"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "populations/v1",
+			"item": [
+				{
+					"name": "200: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/populations/v1?startYear=2021&endYear=2050&suburbs=[Liverpool,Armidale]",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"populations",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2021"
+								},
+								{
+									"key": "endYear",
+									"value": "2050"
+								},
+								{
+									"key": "suburbs",
+									"value": "[Liverpool,Armidale]"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: Invalid start year",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Invalid start year\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/populations/v1?startYear=2020&endYear=2050&suburbs=[Liverpool,Armidale]",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"populations",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2020"
+								},
+								{
+									"key": "endYear",
+									"value": "2050"
+								},
+								{
+									"key": "suburbs",
+									"value": "[Liverpool,Armidale]"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: Invalid end year",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Invalid end year\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/populations/v1?startYear=2021&endYear=2070&suburbs=[Liverpool,Armidale]",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"populations",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2021"
+								},
+								{
+									"key": "endYear",
+									"value": "2070"
+								},
+								{
+									"key": "suburbs",
+									"value": "[Liverpool,Armidale]"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: Start year is greater than end year",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Start year greater than end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Start year is greater than end year\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/populations/v1?startYear=2050&endYear=2040&suburbs=[Liverpool,Armidale]",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"populations",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2050"
+								},
+								{
+									"key": "endYear",
+									"value": "2040"
+								},
+								{
+									"key": "suburbs",
+									"value": "[Liverpool,Armidale]"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: Invalid year range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid year range\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Invalid year range\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/populations/v1?startYear=2042&endYear=2042&suburbs=[Liverpool,Armidale]",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"populations",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2042"
+								},
+								{
+									"key": "endYear",
+									"value": "2042"
+								},
+								{
+									"key": "suburbs",
+									"value": "[Liverpool,Armidale]"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: DB does not have data for all suburbs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 DB does not have data for all suburbs\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"DB does not have data for all suburbs\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/populations/v1?startYear=2021&endYear=2066&suburbs=[Liverpool,Balmain]",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"populations",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2021"
+								},
+								{
+									"key": "endYear",
+									"value": "2066"
+								},
+								{
+									"key": "suburbs",
+									"value": "[Liverpool,Balmain]"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: No suburb found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 No suburb found\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"No suburb found\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://slzykzeusf.execute-api.us-east-1.amazonaws.com/prod/populations/v1?startYear=2021&endYear=2066&suburbs=",
+							"protocol": "https",
+							"host": [
+								"slzykzeusf",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"prod",
+								"populations",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "startYear",
+									"value": "2021"
+								},
+								{
+									"key": "endYear",
+									"value": "2066"
+								},
+								{
+									"key": "suburbs",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
