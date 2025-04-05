@@ -28,7 +28,7 @@ class TestPopulationAll():
         assert errMsg == result["error"]
 
     def testValidYearRangeQuery(self):
-        self.helperValidQuery(2041, 2024, 4, [2021, 2022, 2023, 2024])
+        self.helperValidQuery(2021, 2024, 4, [2021, 2022, 2023, 2024])
     
     def testSingleYearQuery(self):
         self.helperValidQuery(2030, 2030, 1, [2030])
