@@ -145,18 +145,18 @@ def populations(startYear, endYear, sortPopBy, suburbs):
         )
     return json.dumps({"suburbsPopulationEstimates": ret_suburb})
 
-def populationAll(startYear, endYear):
-    indices = testYears(startYear, endYear)
-    if not indices:
-        return None
+# def populationAll(startYear, endYear):
+#     indices = testYears(startYear, endYear)
+#     if not indices:
+#         return None
 
-    db_population_query = """SELECT * 
-        FROM population
-        ORDER BY lga ASC"""
+#     db_population_query = """SELECT * 
+#         FROM population
+#         ORDER BY lga ASC"""
 
-    res_suburbs = dbQuery(db_population_query, None)
+#     res_suburbs = dbQuery(db_population_query, None)
 
-    # if len(res_suburbs) == 0:
-    #     return {"error": "No suburb found", "code": 400}
+#     # if len(res_suburbs) == 0:
+#     #     return {"error": "No suburb found", "code": 400}
 
-    return res_suburbs
+#     return res_suburbs
