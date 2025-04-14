@@ -3,6 +3,8 @@ import math
 import os
 import json
 from dotenv import load_dotenv
+import requests
+import datetime
 
 load_dotenv()
 
@@ -69,6 +71,15 @@ def findYears(startYear, endYear):
             years.append(2031 + 5 * (i - 11))
     return years
 
+def findMissingYears(startYear, endYear):
+    years = []
+    for i in range(startYear, endYear + 1):
+        if i > 2031 and (i - 1) % 5 != 0:
+            years.append(i)
+    return years
+
+def findAllYears(startYear, endYear):
+    return [year for year in range(startYear, endYear + 1)]
 
 # Returns the indices of the years in the database
 def dbQuery(query, suburbs):
@@ -117,27 +128,59 @@ def population_helper(startYear, endYear, suburbs, sortPopBy="lga"):
         return {"error": "No suburb found", "code": 400}
     elif len(res_suburbs) != len(suburbs):
         return {"error": "DB does not have data for all suburbs", "code": 400}
-    return res_suburbs
+    
+    full_suburbs = predict_population(res_suburbs, startYear, endYear)
+    return full_suburbs
 
+def predict_population(data, startYear, endYear):
+    new_data = data.copy()
+    years = findYears(startYear, endYear)
+    predicted_years = findMissingYears(startYear, endYear)
+    all_years = findAllYears(startYear, endYear)
+    if predicted_years == []:
+        return data
+    for i in range(len(data)):
+        suburb = data[i]
+        suburb_data = {"data": [
+            {"time_object": 
+             {"timestamp": datetime.datetime(years[i], 1, 1).isoformat()},
+             "event_type": "population",
+             "attribute": {
+                 "year": years[i],
+                 "population": suburb[i + 1]
+             }
+            } for i in range(len(years))
+        ], "x_attribute": "year", "y_attribute": "population", "x_values": predicted_years}
+        res = tango_helper(suburb_data)
+        if res.status_code != 200:
+            return {"error": "Error in prediction: " + res.reason, "code": 500}
+        predicted_data = res.json()
+        for j in range(1, len(predicted_years) + 1):
+            if all_years[j] in predicted_years:
+                new_data[i] = new_data[i][:j + 1] + [predicted_data["prediction"][predicted_years.index(all_years[j])]] + new_data[i][j + 2:]
+    return new_data
+
+def tango_helper(data):
+    res = requests.post("http://alb8-2127494217.ap-southeast-2.elb.amazonaws.com/predict", json=data)
+    return res
 
 def population(startYear, endYear, suburb):
     suburb = population_helper(startYear, endYear, suburb)
-    if isinstance(suburb, dict):
+    if isinstance(suburb, dict) and suburb.get("error"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
     suburb = suburb[0]
     return json.dumps(
         {
             "suburbPopulationEstimates": suburb[1:],
-            "years": findYears(startYear, endYear),
+            "years": findAllYears(startYear, endYear),
         }
     )
 
-
 def populations(startYear, endYear, sortPopBy, suburbs):
     suburb = population_helper(startYear, endYear, suburbs, sortPopBy)
-    if isinstance(suburb, dict):
+    if isinstance(suburb, dict) and suburb.get("error"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
-    years = findYears(startYear, endYear)
+    years = findAllYears(startYear, endYear)
     ret_suburb = []
     for i in range(len(suburb)):
         ret_suburb.append(
@@ -145,18 +188,18 @@ def populations(startYear, endYear, sortPopBy, suburbs):
         )
     return json.dumps({"suburbsPopulationEstimates": ret_suburb})
 
-# def populationAll(startYear, endYear):
-#     indices = testYears(startYear, endYear)
-#     if not indices:
-#         return None
+def populationAll(startYear, endYear):
+    indices = testYears(startYear, endYear)
+    if not indices:
+        return None
 
-#     db_population_query = """SELECT * 
-#         FROM population
-#         ORDER BY lga ASC"""
+    db_population_query = """SELECT * 
+        FROM population
+        ORDER BY lga ASC"""
 
-#     res_suburbs = dbQuery(db_population_query, None)
+    res_suburbs = dbQuery(db_population_query, None)
 
-#     if len(res_suburbs) == 0:
-#         return {"error": "No suburb found", "code": 400}
+    if len(res_suburbs) == 0:
+        return {"error": "No suburb found", "code": 400}
 
-#     return res_suburbs
+    return json.dumps({"suburbsPopulationEstimates": res_suburbs})
