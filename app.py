@@ -63,15 +63,10 @@ def populations():
 @app.get("/populations/all/v1")
 def populationsAll(startYear, endYear, sortPopBy):
     suburb = retrieval.populationAll(startYear, endYear, sortPopBy)
-    if isinstance(suburb, dict):
+    suburb_info = json.loads(suburb)
+    if "error" in suburb_info:
         return Response(suburb["error"], status=suburb["code"])
-    years = retrieval.findYears(startYear, endYear)
-    ret_suburb = []
-    for i in range(len(suburb)):
-        ret_suburb.append(
-            jsonify(suburb=suburb[i][0], estimates=suburb[i][1:], years=years)
-        )
-    return jsonify(suburbpopulationEstimates=ret_suburb)
+    return suburb
 
 
 if __name__ == "__main__":
