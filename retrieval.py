@@ -10,22 +10,23 @@ load_dotenv()
 
 # Helper function to establish connection to postgres DB.
 def db_connect(host, port, user, password, db):
-    conn = psycopg.connect(
-        "host="
-        + host
-        + " port="
-        + port
-        + " dbname="
-        + db
-        + " user="
-        + user
-        + " password="
-        + password
-        + " connect_timeout=4"
-    )
-    conn.autocommit = True  # ???
-
-    return conn
+    if host and port and user and password and db:
+        conn = psycopg.connect(
+            "host="
+            + host
+            + " port="
+            + port
+            + " dbname="
+            + db
+            + " user="
+            + user
+            + " password="
+            + password
+            + " connect_timeout=4"
+        )
+        conn.autocommit = True  # ???
+        return conn
+    return None
 
 
 def valid_year(year):
@@ -90,7 +91,8 @@ def dbQuery(query, suburbs):
         password=os.getenv("PASSWORD"),
         db=os.getenv("DB"),
     )
-
+    if conn is None:
+        return {"error": "Unable to connect to database", "code": 500}
     curs = conn.cursor()
 
     if suburbs:
@@ -103,7 +105,7 @@ def dbQuery(query, suburbs):
     return res
 
 
-def population_helper(startYear, endYear, suburbs, sortPopBy="lga"):
+def population_helper(startYear, endYear, suburbs, sortPopBy="lga", version="v1"):
     indices = testYears(startYear, endYear)
     if isinstance(indices, dict):
         return indices
@@ -119,6 +121,9 @@ def population_helper(startYear, endYear, suburbs, sortPopBy="lga"):
         WHERE lga = ANY (%s)
         ORDER BY lga ASC"""
     res = dbQuery(db_population_query, suburbs)
+    if isinstance(res, dict) and res.get("error"):
+        return res
+    
     res_suburbs = []
     for i in range(len(res)):
         res_suburbs.append([res[i][0]] + list(res[i][indices[0] : indices[1]]))
@@ -129,8 +134,11 @@ def population_helper(startYear, endYear, suburbs, sortPopBy="lga"):
     elif len(res_suburbs) != len(suburbs):
         return {"error": "DB does not have data for all suburbs", "code": 400}
     
-    full_suburbs = predict_population(res_suburbs, startYear, endYear)
-    return full_suburbs
+    if version == "v1":
+        return res_suburbs
+    else:
+        full_suburbs = predict_population(res_suburbs, startYear, endYear)
+        return full_suburbs
 
 def predict_population(data, startYear, endYear):
     new_data = data.copy()
@@ -146,12 +154,12 @@ def predict_population(data, startYear, endYear):
              {"timestamp": datetime.datetime(years[i], 1, 1).isoformat()},
              "event_type": "population",
              "attribute": {
-                 "year": years[i],
                  "population": suburb[i + 1]
              }
             } for i in range(len(years))
-        ], "x_attribute": "year", "y_attribute": "population", "x_values": predicted_years}
+        ], "value_attribute": "year", "time_points": predicted_years}
         res = tango_helper(suburb_data)
+        print(data, res.json())
         if res.status_code != 200:
             return {"error": "Error in prediction: " + res.reason, "code": 500}
         predicted_data = res.json()
@@ -161,10 +169,10 @@ def predict_population(data, startYear, endYear):
     return new_data
 
 def tango_helper(data):
-    res = requests.post("http://alb8-2127494217.ap-southeast-2.elb.amazonaws.com/predict", json=data)
+    res = requests.post("http://alb8-2127494217.ap-southeast-2.elb.amazonaws.com/predict-future-values", json=data)
     return res
 
-def population(startYear, endYear, suburb):
+def population(startYear, endYear, suburb, version="v1"):
     suburb = population_helper(startYear, endYear, suburb)
     if isinstance(suburb, dict) and suburb.get("error"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
@@ -176,7 +184,7 @@ def population(startYear, endYear, suburb):
         }
     )
 
-def populations(startYear, endYear, sortPopBy, suburbs):
+def populations(startYear, endYear, sortPopBy, suburbs, version="v1"):
     suburb = population_helper(startYear, endYear, suburbs, sortPopBy)
     if isinstance(suburb, dict) and suburb.get("error"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
@@ -203,3 +211,58 @@ def populationAll(startYear, endYear):
         return {"error": "No suburb found", "code": 400}
 
     return json.dumps({"suburbsPopulationEstimates": res_suburbs})
+
+def test_data():
+        return {
+  "time_points": [
+    2025,
+    2026,
+    2027
+  ],
+  "value_attribute": "price",
+  "data": [
+    {
+      "time_object": {
+        "timestamp": "2020-06-01"
+      },
+      "event_type": "sale",
+      "attribute": {
+        "price": 300000
+      }
+    },
+    {
+      "time_object": {
+        "timestamp": "2021-06-01"
+      },
+      "event_type": "sale",
+      "attribute": {
+        "price": 350000
+      }
+    },
+    {
+      "time_object": {
+        "timestamp": "2022-06-01"
+      },
+      "event_type": "sale",
+      "attribute": {
+        "price": 400000
+      }
+    },
+    {
+      "time_object": {
+        "timestamp": "2023-06-01"
+      },
+      "event_type": "sale",
+      "attribute": {
+        "price": 450000
+      }
+    }
+  ]
+}
+
+
+
+if __name__ == "__main__":
+    # Test the functions
+    res = tango_helper(test_data())
+    print(res.json(), res.status_code)

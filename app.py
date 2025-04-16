@@ -46,19 +46,25 @@ def population():
         return Response(suburb_info["error"], status=suburb_info["code"])
     return suburb
 
-
-@app.get("/populations/v1")
-def populations():
+def pops(version):
     suburbs = request.args.get("suburbs")[1:-1].split(",")
     startYear = int(request.args.get("startYear"))
     endYear = int(request.args.get("endYear"))
     sortPopBy = request.args.get("sortPopBy")
-    suburbs = retrieval.populations(startYear, endYear, sortPopBy, suburbs)
+    
+    suburbs = retrieval.populations(startYear, endYear, sortPopBy, suburbs, version)
     suburb_info = json.loads(suburbs)
     if "error" in suburb_info:
         return Response(suburb_info["error"], status=suburb_info["code"])
     return suburbs
 
+@app.get("/populations/v1")
+def populations_v1():
+    return pops("v1")
+
+@app.get("/populations/v2")
+def populations_v2():
+    return pops("v2")
 
 @app.get("/populations/all/v1")
 def populationsAll(startYear, endYear, sortPopBy):
