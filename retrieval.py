@@ -136,7 +136,7 @@ def population_helper(startYear, endYear, suburbs, sortPopBy="lga", version="v1"
     
     if version == "v1":
         return res_suburbs
-    else:
+    elif version == "v2":
         full_suburbs = predict_population(res_suburbs, startYear, endYear)
         return full_suburbs
 
@@ -151,21 +151,21 @@ def predict_population(data, startYear, endYear):
         suburb = data[i]
         suburb_data = {"data": [
             {"time_object": 
-             {"timestamp": datetime.datetime(years[i], 1, 1).isoformat()},
+             {"timestamp": datetime.date(years[k], 1, 1).isoformat()},
              "event_type": "population",
              "attribute": {
-                 "population": suburb[i + 1]
+                 "year": suburb[k + 1]
              }
-            } for i in range(len(years))
+            } for k in range(len(years))
         ], "value_attribute": "year", "time_points": predicted_years}
         res = tango_helper(suburb_data)
-        print(data, res.json())
         if res.status_code != 200:
             return {"error": "Error in prediction: " + res.reason, "code": 500}
         predicted_data = res.json()
-        for j in range(1, len(predicted_years) + 1):
-            if all_years[j] in predicted_years:
-                new_data[i] = new_data[i][:j + 1] + [predicted_data["prediction"][predicted_years.index(all_years[j])]] + new_data[i][j + 2:]
+        for j in range(0, len(predicted_years)):
+            if str(predicted_years[j]) in predicted_data["predicted_values"].keys():
+                new_index = all_years.index(predicted_years[j])
+                new_data[i] = new_data[i][:new_index + 1] + [predicted_data["predicted_values"][str(predicted_years[j])]] + new_data[i][new_index + 1:]
     return new_data
 
 def tango_helper(data):
@@ -211,3 +211,6 @@ def populationAll(startYear, endYear):
         return {"error": "No suburb found", "code": 400}
 
     return json.dumps({"suburbsPopulationEstimates": res_suburbs})
+
+if __name__ == "__main__":
+    print(population(2031, 2036, "Randwick", version="v2"))
