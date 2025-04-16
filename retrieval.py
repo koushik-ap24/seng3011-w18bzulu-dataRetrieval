@@ -139,6 +139,7 @@ def population_helper(startYear, endYear, suburbs, sortPopBy="lga", version="v1"
     elif version == "v2":
         full_suburbs = predict_population(res_suburbs, startYear, endYear)
         return full_suburbs
+    return res_suburbs
 
 def predict_population(data, startYear, endYear):
     new_data = data.copy()
@@ -147,6 +148,8 @@ def predict_population(data, startYear, endYear):
     all_years = findAllYears(startYear, endYear)
     if predicted_years == []:
         return data
+    
+    # Transform data to match the expected format for tango prediction
     for i in range(len(data)):
         suburb = data[i]
         suburb_data = {"data": [
@@ -162,6 +165,8 @@ def predict_population(data, startYear, endYear):
         if res.status_code != 200:
             return {"error": "Error in prediction: " + res.reason, "code": 500}
         predicted_data = res.json()
+
+        # reformat back into the original format adding the new values
         for j in range(0, len(predicted_years)):
             if str(predicted_years[j]) in predicted_data["predicted_values"].keys():
                 new_index = all_years.index(predicted_years[j])
@@ -174,13 +179,14 @@ def tango_helper(data):
 
 def population(startYear, endYear, suburb, version="v1"):
     suburb = population_helper(startYear, endYear, suburb, version=version)
+    years = findAllYears(startYear, endYear) if len(findYears(startYear, endYear)) > 1 else findYears(startYear, endYear)
     if isinstance(suburb, dict) and suburb.get("error"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
     suburb = suburb[0]
     return json.dumps(
         {
             "suburbPopulationEstimates": suburb[1:],
-            "years": findAllYears(startYear, endYear),
+            "years": years,
         }
     )
 
@@ -188,7 +194,7 @@ def populations(startYear, endYear, sortPopBy, suburbs, version="v1"):
     suburb = population_helper(startYear, endYear, suburbs, sortPopBy, version=version)
     if isinstance(suburb, dict) and suburb.get("error"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
-    years = findAllYears(startYear, endYear)
+    years = findAllYears(startYear, endYear) if len(findYears(startYear, endYear)) > 1 else findYears(startYear, endYear)
     ret_suburb = []
     for i in range(len(suburb)):
         ret_suburb.append(
@@ -211,6 +217,3 @@ def populationAll(startYear, endYear):
         return {"error": "No suburb found", "code": 400}
 
     return json.dumps({"suburbsPopulationEstimates": res_suburbs})
-
-if __name__ == "__main__":
-    print(population(2031, 2036, "Randwick", version="v2"))
