@@ -35,16 +35,23 @@ def convert_v2_to_v1(event):
 
 
 # Sample change
-@app.get("/population/v1")
-def population():
+def pop(version):
     suburb = request.args.get("suburb")
     startYear = int(request.args.get("startYear"))
     endYear = int(request.args.get("endYear"))
-    suburb = retrieval.population(startYear, endYear, suburb)
+    suburb = retrieval.population(startYear, endYear, suburb, version=version)
     suburb_info = json.loads(suburb)
     if "error" in suburb_info:
         return Response(suburb_info["error"], status=suburb_info["code"])
     return suburb
+
+@app.get("/population/v1")
+def population():
+    pop("v1")
+
+@app.get("/population/v2")
+def population():
+    pop("v2")
 
 def pops(version):
     suburbs = request.args.get("suburbs")[1:-1].split(",")

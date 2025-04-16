@@ -169,11 +169,11 @@ def predict_population(data, startYear, endYear):
     return new_data
 
 def tango_helper(data):
-    res = requests.post("http://alb8-2127494217.ap-southeast-2.elb.amazonaws.com/predict-future-values", json=data)
+    res = requests.post("http://analyticsnew-370734319.ap-southeast-2.elb.amazonaws.com/predict-future-values", json=data)
     return res
 
 def population(startYear, endYear, suburb, version="v1"):
-    suburb = population_helper(startYear, endYear, suburb)
+    suburb = population_helper(startYear, endYear, suburb, version=version)
     if isinstance(suburb, dict) and suburb.get("error"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
     suburb = suburb[0]
@@ -185,7 +185,7 @@ def population(startYear, endYear, suburb, version="v1"):
     )
 
 def populations(startYear, endYear, sortPopBy, suburbs, version="v1"):
-    suburb = population_helper(startYear, endYear, suburbs, sortPopBy)
+    suburb = population_helper(startYear, endYear, suburbs, sortPopBy, version=version)
     if isinstance(suburb, dict) and suburb.get("error"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
     years = findAllYears(startYear, endYear)
@@ -211,58 +211,3 @@ def populationAll(startYear, endYear):
         return {"error": "No suburb found", "code": 400}
 
     return json.dumps({"suburbsPopulationEstimates": res_suburbs})
-
-def test_data():
-        return {
-  "time_points": [
-    2025,
-    2026,
-    2027
-  ],
-  "value_attribute": "price",
-  "data": [
-    {
-      "time_object": {
-        "timestamp": "2020-06-01"
-      },
-      "event_type": "sale",
-      "attribute": {
-        "price": 300000
-      }
-    },
-    {
-      "time_object": {
-        "timestamp": "2021-06-01"
-      },
-      "event_type": "sale",
-      "attribute": {
-        "price": 350000
-      }
-    },
-    {
-      "time_object": {
-        "timestamp": "2022-06-01"
-      },
-      "event_type": "sale",
-      "attribute": {
-        "price": 400000
-      }
-    },
-    {
-      "time_object": {
-        "timestamp": "2023-06-01"
-      },
-      "event_type": "sale",
-      "attribute": {
-        "price": 450000
-      }
-    }
-  ]
-}
-
-
-
-if __name__ == "__main__":
-    # Test the functions
-    res = tango_helper(test_data())
-    print(res.json(), res.status_code)
