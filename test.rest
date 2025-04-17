@@ -1,1 +1,0 @@
-POST http://alb8-2127494217.ap-southeast-2.elb.amazonaws.com/outliers
