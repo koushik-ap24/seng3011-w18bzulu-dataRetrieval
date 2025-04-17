@@ -29,13 +29,13 @@
 
 #     def testValidYearRangeQuery(self):
 #         self.helperValidQuery(2021, 2024, 4, [2021, 2022, 2023, 2024])
-    
+
 #     def testSingleYearQuery(self):
 #         self.helperValidQuery(2030, 2030, 1, [2030])
-    
+
 #     def testValidMissingYearsQuery(self):
 #         self.helperValidQuery(2041, 2046, 2, [2041, 2046])
-        
+
 #     def testInvalidStartYear(self):
 #         self.helperInvalidQuery(1899, 2029, "Invalid start year")
 
@@ -44,6 +44,6 @@
 
 #     def testInvalidYearOrder(self):
 #         self.helperInvalidQuery(2031, 2025, "Start year is greater than end year")
-    
+
 #     def testInvalidYearRange(self):
 #         self.helperInvalidQuery(2049, 2050, "Invalid year range")

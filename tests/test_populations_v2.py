@@ -13,7 +13,7 @@ except ImportError:
     pytest.skip(reason="could not import populations", allow_module_level=True)
 
 
-class TestPopulations():
+class TestPopulations:
     def helperValidQuery(self, start, end, suburbs, expectedEst, expectedYears):
         jsonResult = populations(start, end, "ERP", suburbs, version="v2")
         result = json.loads(jsonResult)
@@ -32,16 +32,16 @@ class TestPopulations():
     def testValidYearRangeQuery(self):
         suburbs = ["Ryde", "Albury", "Strathfield"]
         self.helperValidQuery(2021, 2025, suburbs, 5, [2021, 2022, 2023, 2024, 2025])
-    
+
     def testSingleYearQuery(self):
         suburbs = ["Burwood", "Ryde", "Albury", "Strathfield"]
         self.helperValidQuery(2022, 2022, suburbs, 1, [2022])
-    
+
     def testValidMissingYearsQuery(self):
         suburbs = ["Burwood", "Strathfield"]
         years = list(range(2055, 2062))
         self.helperValidQuery(2055, 2061, suburbs, len(years), years)
-    
+
     def testValidMissingAllYearsQuery(self):
         suburbs = ["Burwood", "Strathfield", "Randwick"]
         years = list(range(2021, 2067))
