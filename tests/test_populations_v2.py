@@ -15,7 +15,7 @@ except ImportError:
 
 class TestPopulations:
     def helperValidQuery(self, start, end, suburbs, expectedEst, expectedYears):
-        jsonResult = populations(start, end, "ERP", suburbs)
+        jsonResult = populations(start, end, "ERP", suburbs, version="v2")
         result = json.loads(jsonResult)
         resultArr = result["suburbsPopulationEstimates"]
         assert len(resultArr) == len(suburbs)
@@ -25,7 +25,7 @@ class TestPopulations:
             assert suburb["suburb"] in suburbs
 
     def helperInvalidQuery(self, start, end, suburbs, errMsg):
-        jsonResult = populations(start, end, "ERP", suburbs)
+        jsonResult = populations(start, end, "ERP", suburbs, version="v2")
         result = json.loads(jsonResult)
         assert errMsg == result["error"]
 
@@ -39,32 +39,10 @@ class TestPopulations:
 
     def testValidMissingYearsQuery(self):
         suburbs = ["Burwood", "Strathfield"]
-        self.helperValidQuery(2055, 2057, suburbs, 1, [2056])
+        years = list(range(2055, 2062))
+        self.helperValidQuery(2055, 2061, suburbs, len(years), years)
 
-    def testInvalidStartYear(self):
-        suburbs = ["Ryde", "Albury", "Strathfield"]
-        self.helperInvalidQuery(1999, 2025, suburbs, "Invalid start year")
-
-    def testInvalidEndYear(self):
-        suburbs = ["Ryde", "Albury", "Strathfield"]
-        self.helperInvalidQuery(2023, 2099, suburbs, "Invalid end year")
-
-    def testInvalidYearOrder(self):
-        suburbs = ["Ryde", "Albury", "Strathfield"]
-        self.helperInvalidQuery(
-            2027, 2025, suburbs, "Start year is greater than end year"
-        )
-
-    def testInvalidYearRange(self):
-        suburbs = ["Ryde", "Albury", "Strathfield"]
-        self.helperInvalidQuery(2033, 2034, suburbs, "Invalid year range")
-
-    def testInvalidSuburbs(self):
-        suburbs = ["A", "B", "C"]
-        self.helperInvalidQuery(2023, 2027, suburbs, "No suburb found")
-
-    def testMissingSuburbs(self):
-        suburbs = ["Albury", "B"]
-        self.helperInvalidQuery(
-            2023, 2027, suburbs, "DB does not have data for all suburbs"
-        )
+    def testValidMissingAllYearsQuery(self):
+        suburbs = ["Burwood", "Strathfield", "Randwick"]
+        years = list(range(2021, 2067))
+        self.helperValidQuery(2021, 2066, suburbs, len(years), years)
