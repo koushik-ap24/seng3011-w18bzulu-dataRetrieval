@@ -44,9 +44,6 @@ class TestPopulation():
     def testInvalidStartYear(self):
         self.helperInvalidQuery(1999, 2023, "Albury", "Invalid start year")
 
-    def testInvalidYearRange(self):
-        self.helperInvalidQuery(2042, 2044, "Albury", "Invalid year range")
-
     def testInvalidYearOrder(self):
         self.helperInvalidQuery(2030, 2021, "Albury", "Start year is greater than end year")
     

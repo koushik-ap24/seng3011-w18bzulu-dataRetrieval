@@ -35,17 +35,21 @@ def valid_year(year):
     else:
         return False
 
-
-# Returns the indices of the years in the database
-# Returns False if the years are invalid
-# Returns None if the years are out of range
-def testYears(startYear, endYear):
+def testYearsSimple(startYear, endYear):
     if not valid_year(startYear):
         return {"error": "Invalid start year", "code": 400}
     elif not valid_year(endYear):
         return {"error": "Invalid end year", "code": 400}
     elif startYear > endYear:
         return {"error": "Start year is greater than end year", "code": 400}
+    
+# Returns the indices of the years in the database
+# Returns False if the years are invalid
+# Returns None if the years are out of range
+def testYears(startYear, endYear):
+    test = testYearsSimple(startYear, endYear)
+    if test:
+        return test
     elif startYear > 2031 and endYear - startYear < 4:
         # check if there is a valid year between start and end
         if (endYear - (endYear - 1) % 5) < startYear:
@@ -65,6 +69,8 @@ def testYears(startYear, endYear):
 def findYears(startYear, endYear):
     years = []
     indices = testYears(startYear, endYear)
+    if isinstance(indices, dict) and indices.get('error'):
+        return indices
     for i in range(indices[0], indices[1]):
         if i <= 11:
             years.append(2020 + i)
@@ -104,23 +110,38 @@ def dbQuery(query, suburbs):
     conn.close()
     return res
 
-
-def population_helper(startYear, endYear, suburbs, sortPopBy="lga", version="v1"):
-    indices = testYears(startYear, endYear)
-    if isinstance(indices, dict):
-        return indices
-    if indices[0] == indices[1]:
-        return {"error": "Invalid start year", "code": 400}
-    if suburbs == "":
-        return {"error": "No suburb found", "code": 400}
-    if not isinstance(suburbs, list):
-        suburbs = [suburbs]
-
+def pop_all_years(suburbs):
     db_population_query = """SELECT *
         FROM population 
         WHERE lga = ANY (%s)
         ORDER BY lga ASC"""
     res = dbQuery(db_population_query, suburbs)
+    if isinstance(res, dict) and res.get("error"):
+        return res
+    return res
+
+def population_helper(startYear, endYear, suburbs, sortPopBy="lga", version="v1"):
+    if suburbs == "":
+        return {"error": "No suburb found", "code": 400}
+    if not isinstance(suburbs, list):
+        suburbs = [suburbs]
+    if version == "v2":
+        err = testYearsSimple(startYear, endYear)
+        if err:
+            return err
+        
+        full_suburbs = predict_population(startYear, endYear, suburbs)
+        if isinstance(full_suburbs, dict) and full_suburbs.get("error"):
+            return full_suburbs
+        return full_suburbs
+    
+    indices = testYears(startYear, endYear)
+    if isinstance(indices, dict):
+        return indices
+    if indices[0] == indices[1]:
+        return {"error": "Invalid start year", "code": 400}
+
+    res = pop_all_years(suburbs)
     if isinstance(res, dict) and res.get("error"):
         return res
     
@@ -136,18 +157,29 @@ def population_helper(startYear, endYear, suburbs, sortPopBy="lga", version="v1"
     
     if version == "v1":
         return res_suburbs
-    elif version == "v2":
-        full_suburbs = predict_population(res_suburbs, startYear, endYear)
-        return full_suburbs
     return res_suburbs
 
-def predict_population(data, startYear, endYear):
-    new_data = data.copy()
-    years = findYears(startYear, endYear)
-    predicted_years = findMissingYears(startYear, endYear)
-    all_years = findAllYears(startYear, endYear)
-    if predicted_years == []:
+def predict_population(start, end, suburbs):
+    start_year = 2021
+    end_year = 2066
+    data = pop_all_years(suburbs)
+    if isinstance(data, dict) and data.get("error"):
         return data
+    if len(data) == 0:
+        return {"error": "No suburb found", "code": 400}
+    elif len(data) != len(suburbs):
+        return {"error": "DB does not have data for all suburbs", "code": 400}
+    
+    years = findYears(start_year, end_year)
+    if isinstance(years, dict) and years.get("error"):
+        return years
+    data_dict = {}
+    for i in range(len(data)):
+        temp_dict = {}
+        for j in range(len(years)):
+            temp_dict[str(years[j])] = data[i][j + 1]
+        data_dict[data[i][0]] = temp_dict
+    predicted_years = findMissingYears(start_year, end_year)
     
     # Transform data to match the expected format for tango prediction
     for i in range(len(data)):
@@ -165,13 +197,16 @@ def predict_population(data, startYear, endYear):
         if res.status_code != 200:
             return {"error": "Error in prediction: " + res.reason, "code": 500}
         predicted_data = res.json()
-
-        # reformat back into the original format adding the new values
-        for j in range(0, len(predicted_years)):
-            if str(predicted_years[j]) in predicted_data["predicted_values"].keys():
-                new_index = all_years.index(predicted_years[j])
-                new_data[i] = new_data[i][:new_index + 1] + [predicted_data["predicted_values"][str(predicted_years[j])]] + new_data[i][new_index + 1:]
-    return new_data
+        data_dict[suburb[0]] = data_dict[suburb[0]] | predicted_data["predicted_values"]
+    
+    ret_data = []
+    for i in range(len(data)):
+        suburb = data[i][0]
+        suburb_data = [suburb]
+        for year in range(start, end + 1):
+            suburb_data.append(data_dict[suburb][str(year)])
+        ret_data.append(suburb_data)
+    return ret_data
 
 def tango_helper(data):
     res = requests.post("http://analyticsnew-370734319.ap-southeast-2.elb.amazonaws.com/predict-future-values", json=data)
@@ -179,7 +214,10 @@ def tango_helper(data):
 
 def population(startYear, endYear, suburb, version="v1"):
     suburb = population_helper(startYear, endYear, suburb, version=version)
-    years = findAllYears(startYear, endYear) if len(findYears(startYear, endYear)) > 1 else findYears(startYear, endYear)
+    if version == "v1":
+        years = findYears(startYear, endYear)
+    else:
+        years = findAllYears(startYear, endYear)
     if isinstance(suburb, dict) and suburb.get("error"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
     suburb = suburb[0]
@@ -212,6 +250,9 @@ def populationAll(startYear, endYear):
         ORDER BY lga ASC"""
 
     res_suburbs = dbQuery(db_population_query, None)
+
+    for i in range(0, len(res_suburbs)):
+        res_suburbs[i] = [res_suburbs[i][0]] + res_suburbs[i][startYear - 2020: endYear - 2019]
 
     if len(res_suburbs) == 0:
         return {"error": "No suburb found", "code": 400}
