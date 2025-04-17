@@ -8,7 +8,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return jsonify(message="Hello from AWS Lambda!")
+    return jsonify(message="Hello from AWS Lambda (dev)!")
 
 
 def lambda_handler(event, context):
