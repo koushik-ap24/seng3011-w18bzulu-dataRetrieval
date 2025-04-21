@@ -1,0 +1,54 @@
+import json
+import sys
+import os
+import pytest
+
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(parent_dir)
+from hts_retrieval import suburbs_travel_modes
+
+class TestTravelModes():
+    # HELPER FUNCTIONS
+    def assert_valid_mode_format(self, mode_obj):
+        # Assert that the given mode object is in the expected format
+        expected_keys = [
+            "mode", "numTrips", "pctOfTotal", "tripAvgDistance", "tripAvgTime"
+        ]
+        assert list(mode_obj.keys()) == expected_keys
+
+    def assert_valid_suburb_format(self, suburb_obj):
+        # Assert that the given suburb data object is in the expected format
+        expected_keys = ["suburb", "travelModes"]
+        assert list(suburb_obj.keys()) == expected_keys
+        # Test validity of each mode data object in suburb
+        modes_array = suburb_obj["travelModes"]
+        for i in range(len(modes_array)):
+            self.assert_valid_mode_format(modes_array[i])
+
+    def assert_valid(self, suburbs, expectedResult):
+        # Assert suburbs_travel_modes() returns expected result
+        result = json.loads(suburbs_travel_modes(suburbs))
+        print(f"test result:\n{result}", end="\n\n")
+        assert len(result["suburbsTravelModes"]) == len(expectedResult["suburbsTravelModes"])
+    
+        # Test validity of each suburb data object
+        suburbs_array = result["suburbsTravelModes"]
+        for i in range(len(suburbs_array)):
+            self.assert_valid_suburb_format(suburbs_array[i])
+
+    def assert_invalid(self, suburbs, errMsg):
+        jsonResult = suburbs_travel_modes(suburbs)
+        result = json.loads(jsonResult)
+        assert errMsg == result["error"]
+
+
+    # TEST CASES
+    def test_valid_suburb(self):
+        suburbs = ["Parramatta"]
+        expectedResult = {"suburbsTravelModes": suburbs}  # TODO: enter the actual expected result
+        self.assert_valid(suburbs, expectedResult)
+
+    def test_valid_suburbs(self):
+        suburbs = ["Parramatta", "Wollongong"]
+        expectedResult = {"suburbsTravelModes": suburbs}
+        self.assert_valid(suburbs, expectedResult)
