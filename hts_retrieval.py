@@ -21,34 +21,57 @@ def dbQuery(query):
     conn.close()
     return res
 
-def travel_helper(suburb):
-    # Validity checks
-    if suburb == "":
-        return {"error": "No suburbs entered", "code": 400}
-    db_travel_query = f"""
-        SELECT travel_mode, trips_by_mode, pct_of_total_trips, trip_avg_distance, trip_avg_time
-        FROM transport_mode 
-        WHERE hh_lga_name ILIKE '{suburb}'
-        AND financial_year = '2022/23'
-        ORDER BY travel_mode ASC
-        """
-    res = dbQuery(db_travel_query)
-    print(f"query result:\n{res}", end="\n\n")
-    return res
-
-def travel_modes(suburb):
+def map_mode_data(data):
     """
-    Returns statistics related to various modes of transport in the given
-    suburb.
+    Given an array of data for one transport mode, converts the array into a
+    dict object with a unique key for each data type.
     """
-    modes_data = []
     mode_keys = [
         "mode", "numTrips", "pctOfTotal", "tripAvgDistance", "tripAvgTime"
     ]
-    res = travel_helper(suburb)
+    return dict(zip(mode_keys, data))
 
+def travel_helper(suburbs):
+    # Validity checks
+    if suburbs == "":
+        return {"error": "No suburbs entered", "code": 400}
+
+    formatted_suburbs = ', '.join(f"'{s}'" for s in suburbs)
+    db_travel_query = f"""
+        SELECT hh_lga_name, travel_mode, trips_by_mode, pct_of_total_trips, trip_avg_distance, trip_avg_time
+        FROM transport_mode
+        WHERE hh_lga_name IN ({formatted_suburbs})
+        AND financial_year = '2022/23'
+        """
+    res = dbQuery(db_travel_query)
+
+    suburbs_result = []
+    suburb_data = {}
+
+    # Extract data from each row of the query result
     for i in range(len(res)):
-        # Create dict object containing info for a particular transport mode
-        modes_data.append(dict(zip(mode_keys, res[i])))
+        suburb_name = res[i][0]
+        prev_suburb_name = suburb_data.get("suburb")
 
-    return json.dumps({"suburbTravelModes": modes_data})
+        # If finished compiling all data for a suburb, append to results
+        if suburb_name != prev_suburb_name:
+            if prev_suburb_name != None:
+                suburbs_result.append(suburb_data.copy())
+            # Overwrite existing dict to store data for a new suburb
+            suburb_data["suburb"] = suburb_name
+            suburb_data["travelModes"] = []
+
+        # Extract travel mode statistics
+        suburb_data["travelModes"].append(map_mode_data(res[i][1:]))
+
+    suburbs_result.append(suburb_data)  # Append final suburb to results
+    return suburbs_result
+
+
+def suburbs_travel_modes(suburbs):
+    """
+    Returns statistics about each mode of transport for each of the given
+    suburbs.
+    """
+    res = travel_helper(suburbs)
+    return json.dumps({"suburbsTravelModes": res})
