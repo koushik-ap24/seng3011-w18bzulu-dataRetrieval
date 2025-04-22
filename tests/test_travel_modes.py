@@ -25,30 +25,45 @@ class TestTravelModes():
         for i in range(len(modes_array)):
             self.assert_valid_mode_format(modes_array[i])
 
-    def assert_valid(self, suburbs, expectedResult):
+    def assert_valid(self, suburbs, expected_result):
         # Assert suburbs_travel_modes() returns expected result
         result = json.loads(suburbs_travel_modes(suburbs))
         print(f"test result:\n{result}", end="\n\n")
-        assert len(result["suburbsTravelModes"]) == len(expectedResult["suburbsTravelModes"])
+        assert len(result["suburbsTravelModes"]) == len(expected_result["suburbsTravelModes"])
     
         # Test validity of each suburb data object
         suburbs_array = result["suburbsTravelModes"]
         for i in range(len(suburbs_array)):
             self.assert_valid_suburb_format(suburbs_array[i])
 
-    def assert_invalid(self, suburbs, errMsg):
+    def assert_invalid(self, suburbs, expected_error):
+        # Assert that invalid inputs return the expected error message
         jsonResult = suburbs_travel_modes(suburbs)
         result = json.loads(jsonResult)
-        assert errMsg == result["error"]
+        assert expected_error == result["error"]
 
 
     # TEST CASES
     def test_valid_suburb(self):
         suburbs = ["Parramatta"]
-        expectedResult = {"suburbsTravelModes": suburbs}  # TODO: enter the actual expected result
-        self.assert_valid(suburbs, expectedResult)
+        expected_result = {"suburbsTravelModes": suburbs}  # TODO: enter the actual expected result
+        self.assert_valid(suburbs, expected_result)
+    
+    def test_valid_suburb_waverley(self):
+        suburbs = ["Waverley"]
+        expected_result = {"suburbsTravelModes": suburbs}
+        self.assert_valid(suburbs, expected_result)
+        assert False
 
     def test_valid_suburbs(self):
         suburbs = ["Parramatta", "Wollongong"]
-        expectedResult = {"suburbsTravelModes": suburbs}
-        self.assert_valid(suburbs, expectedResult)
+        expected_result = {"suburbsTravelModes": suburbs}
+        self.assert_valid(suburbs, expected_result)
+
+    def testMissingSuburb(self):
+        suburbs = ["Parramatta", "Wollongongggg"]
+        self.assert_invalid(suburbs, "Data is not available for some requested suburbs")
+    
+    def testInvalidSuburbs(self):
+        suburbs = ["A", "B", "C"]
+        self.assert_invalid(suburbs, "No data is available for these suburbs")
