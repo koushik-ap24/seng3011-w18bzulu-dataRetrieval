@@ -40,6 +40,7 @@ class TestTravelModes():
         # Assert that invalid inputs return the expected error message
         jsonResult = suburbs_travel_modes(suburbs)
         result = json.loads(jsonResult)
+        print(f"test result:\n{result}", end="\n\n")
         assert expected_error == result["error"]
 
 
@@ -49,21 +50,21 @@ class TestTravelModes():
         expected_result = {"suburbsTravelModes": suburbs}  # TODO: enter the actual expected result
         self.assert_valid(suburbs, expected_result)
     
-    def test_valid_suburb_waverley(self):
+    def test_valid_suburb_caret(self):
+        # Test query for a suburb that has trailing characters in original DB
         suburbs = ["Waverley"]
         expected_result = {"suburbsTravelModes": suburbs}
         self.assert_valid(suburbs, expected_result)
-        assert False
 
     def test_valid_suburbs(self):
         suburbs = ["Parramatta", "Wollongong"]
         expected_result = {"suburbsTravelModes": suburbs}
         self.assert_valid(suburbs, expected_result)
 
-    def testMissingSuburb(self):
+    def test_missing_suburb(self):
         suburbs = ["Parramatta", "Wollongongggg"]
         self.assert_invalid(suburbs, "Data is not available for some requested suburbs")
-    
-    def testInvalidSuburbs(self):
+
+    def test_invalid_suburbs(self):
         suburbs = ["A", "B", "C"]
         self.assert_invalid(suburbs, "No data is available for these suburbs")
