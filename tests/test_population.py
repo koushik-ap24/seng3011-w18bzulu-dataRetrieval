@@ -12,7 +12,6 @@ except ImportError:
     # Skip tests if retrieval.py or population() don't exist
     pytest.skip(reason="could not import population", allow_module_level=True)
 
-
 class TestPopulation():
     def helperValidQuery(self, start, end, suburb, expectedEst, expectedYears):
         jsonResult = population(start, end, suburb)
