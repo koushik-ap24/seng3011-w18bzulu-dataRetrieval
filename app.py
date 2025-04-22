@@ -60,10 +60,19 @@ def populations():
         return Response(suburb_info["error"], status=suburb_info["code"])
     return suburbs
 
-@app.get("/travel/mode/v1")
+@app.get("/travel/mode/suburbs/v1")
 def travel_modes():
     suburbs = request.args.get("suburbs")[1:-1].split(",")
     suburbs_data = hts_retrieval.suburbs_travel_modes(suburbs)
+    suburb_info = json.loads(suburbs)
+    if "error" in suburb_info:
+        return Response(suburb_info["error"], status=suburb_info["code"])
+    return suburbs_data
+
+@app.get("/travel/purpose/suburbs/v1")
+def travel_purposes():
+    suburbs = request.args.get("suburbs")[1:-1].split(",")
+    suburbs_data = hts_retrieval.suburbs_travel_purposes(suburbs)
     suburb_info = json.loads(suburbs)
     if "error" in suburb_info:
         return Response(suburb_info["error"], status=suburb_info["code"])
