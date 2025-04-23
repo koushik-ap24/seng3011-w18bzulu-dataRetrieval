@@ -164,20 +164,6 @@ def top_suburbs_helper(options, category, limit):
     ORDER BY sum_num_trips DESC
     LIMIT {limit}
     """
-    # db_travel_query = f"""
-    #     SELECT hh_lga_name,
-    #     SUM(journeys_by_purpose) AS sum_num_trips,
-    #     SUM(pct_of_total_journeys),
-    #     STRING_AGG(travel_purpose, ', '),
-    #     STRING_AGG(CAST(journeys_by_purpose AS varchar), ', '),
-    #     STRING_AGG(CAST(pct_of_total_journeys AS varchar), ', ')
-    # FROM {db_table}
-    # WHERE financial_year = '2022/23'
-    # GROUP BY hh_lga_name
-    # ORDER BY sum_num_trips DESC
-    # LIMIT {limit}
-    # """
-    print(f"query:\n{db_travel_query}", end="\n\n")
     res = db_query(db_travel_query)
     print(f"query result:\n{res}", end="\n\n")
 
@@ -225,23 +211,6 @@ def top_suburbs_helper(options, category, limit):
             }
         )
 
-    """
-    {"topSuburbs": [
-        {
-        "suburb": suburb,
-        "rank": integer,
-        "sumStats": {
-            "numTrips": integer,
-            "pctOfTotal": float
-        },
-        "purposeStats: [{
-            "purpose": purpose,
-            "numTrips": integer,
-            "pctOfTotal": float
-        }]
-      }
-    ]}
-    """
     return top_suburbs_result
 
 
