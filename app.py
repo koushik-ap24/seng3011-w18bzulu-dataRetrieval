@@ -94,6 +94,8 @@ def pops(version):
 @app.get("/travel/mode/suburbs/v1")
 def travel_modes():
     suburbs = request.args.get("suburbs")[1:-1].split(",")
+    if suburbs == "" or suburbs is None:
+        return Response("No suburbs entered", status=400)
     suburbs_data = hts_retrieval.suburbs_travel_modes(suburbs)
     suburb_info = json.loads(suburbs_data)
     if "error" in suburb_info:
@@ -103,6 +105,8 @@ def travel_modes():
 @app.get("/travel/purpose/suburbs/v1")
 def travel_purposes():
     suburbs = request.args.get("suburbs")[1:-1].split(",")
+    if suburbs == "" or suburbs is None:
+        return Response("No suburbs entered", status=400)
     suburbs_data = hts_retrieval.suburbs_travel_purposes(suburbs)
     suburb_info = json.loads(suburbs_data)
     if "error" in suburb_info:
@@ -112,20 +116,29 @@ def travel_purposes():
 @app.get("/travel/mode/top/v1")
 def modes_top():
     modes = request.args.get("modes")[1:-1].split(",")
-    limit = int(request.args.get("limit"))
-    suburbs_data = hts_retrieval.purposes_top_suburbs(modes, limit)
-    suburb_info = json.loads(suburbs_data)
-    if "error" in suburb_info:
-        return Response(suburb_info["error"], status=suburb_info["code"])
+    limitStr = request.args.get("limit")
+    if limitStr:
+        limit = int(limitStr)
+    else:
+        return Response("No limit given", status=400)
+    suburbs_data = hts_retrieval.modes_suburbs(modes, limit)
+    suburbs_info = json.loads(suburbs_data)
+    if "error" in suburbs_info:
+        return Response(suburbs_info["error"], status=suburbs_info["code"])
     return suburbs_data
 
 @app.get("/travel/purpose/top/v1")
 def purposes_top():
     purposes = request.args.get("purposes")[1:-1].split(",")
-    suburbs_data = hts_retrieval.suburbs_travel_purposes(purposes)
-    suburb_info = json.loads(suburbs_data)
-    if "error" in suburb_info:
-        return Response(suburb_info["error"], status=suburb_info["code"])
+    limitStr = request.args.get("limit")
+    if limitStr:
+        limit = int(limitStr)
+    else:
+        return Response("No limit given", status=400)
+    suburbs_data = hts_retrieval.purposes_suburbs(purposes, limit)
+    suburbs_info = json.loads(suburbs_data)
+    if "error" in suburbs_info:
+        return Response(suburbs_info["error"], status=suburbs_info["code"])
     return suburbs_data
 
 @app.get("/populations/v1")
