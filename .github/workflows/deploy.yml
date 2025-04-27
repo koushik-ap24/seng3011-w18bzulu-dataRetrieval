@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - staging
 
 jobs:
   deploy:
@@ -87,7 +88,7 @@ jobs:
 
       - name: Create or update Lambda alias
         run: |
-          ALIAS_NAME=$([[ "${GITHUB_REF##*/}" == "main" ]] && echo "prod" || echo "dev")
+          ALIAS_NAME=$([[ "${GITHUB_REF##*/}" == "main" ]] && echo "prod" || ([[ "${GITHUB_REF##*/}" == "staging" ]] && echo "staging" || echo "dev"))
           echo "Setting alias to $ALIAS_NAME -> version $VERSION"
 
           if aws lambda get-alias --function-name seng3011_dataRetrieval --name $ALIAS_NAME > /dev/null 2>&1; then

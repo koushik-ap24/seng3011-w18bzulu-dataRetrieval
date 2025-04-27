@@ -1,8 +1,12 @@
 aws-wsgi==0.2.7
 blinker==1.9.0
+certifi==2025.1.31
+charset-normalizer==3.4.1
 click==8.1.8
+coverage==7.6.12
 exceptiongroup==1.2.2
 Flask==3.1.0
+idna==3.10
 iniconfig==2.0.0
 itsdangerous==2.2.0
 Jinja2==3.1.6
@@ -14,6 +18,9 @@ psycopg==3.2.5
 psycopg-binary==3.2.6
 pytest==8.3.5
 python-dotenv==1.0.1
+requests==2.32.3
+ruff==0.11.0
 tomli==2.2.1
 typing_extensions==4.12.2
+urllib3==2.4.0
 Werkzeug==3.1.3
