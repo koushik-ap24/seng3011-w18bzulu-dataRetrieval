@@ -99,6 +99,13 @@ jobs:
 
       - name: Push updated staging branch
         run: git push origin staging
+      
+      - name: Trigger deploy workflow for staging branch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: deploy-staging
+          client-payload: '{"branch": "staging"}'
 
   staging:
     needs: promote-to-staging
