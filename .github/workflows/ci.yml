@@ -70,6 +70,12 @@ jobs:
     needs: dev
     runs-on: ubuntu-latest
     if: success()
+    permissions:
+      contents: write
+      checks: write
+      pull-requests: write
+
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -97,6 +103,10 @@ jobs:
   staging:
     needs: promote-to-staging
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      checks: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
