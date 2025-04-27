@@ -1,11 +1,10 @@
+from hts_retrieval import purposes_top_suburbs
 import json
 import sys
 import os
-import pytest
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
-from hts_retrieval import purposes_top_suburbs
 
 class TestTravelPurposesTopSuburbs():
     # HELPER FUNCTIONS
