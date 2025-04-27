@@ -61,12 +61,12 @@ def pop(version):
 
 @app.get("/population/v1")
 def population_v1():
-    pop("v1")
+    return pop("v1")
 
 
 @app.get("/population/v2")
 def population_v2():
-    pop("v2")
+    return pop("v2")
 
 
 def pops(version):
