@@ -225,7 +225,7 @@ def predict_population(start, end, suburbs):
 
 def tango_helper(data):
     res = requests.post(
-        "http://analyticsnew-370734319.ap-southeast-2.elb.amazonaws.com/predict-future-values",
+        "https://analytics-production-8589.up.railway.app/predict-future-values",
         json=data,
     )
     return res
