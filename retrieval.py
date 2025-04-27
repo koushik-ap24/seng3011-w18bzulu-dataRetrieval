@@ -254,7 +254,7 @@ def populations(startYear, endYear, sortPopBy, suburbs, version="v1"):
         return json.dumps({"error": suburb["error"], "code": suburb["code"]})
     years = (
         findAllYears(startYear, endYear)
-        if len(findYears(startYear, endYear)) > 1
+        if version == "v2"
         else findYears(startYear, endYear)
     )
     ret_suburb = []
