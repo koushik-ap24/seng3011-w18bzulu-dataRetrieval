@@ -15,7 +15,7 @@ except ImportError:
 
 class TestPopulation:
     def helperValidQuery(self, start, end, suburb, expectedEst, expectedYears):
-        jsonResult = population(start, end, suburb)
+        jsonResult = population(start, end, suburb, version="v2")
         result = json.loads(jsonResult)
         estArray = result["suburbPopulationEstimates"]
         yearArray = result["years"]
@@ -23,7 +23,7 @@ class TestPopulation:
         assert yearArray == expectedYears
 
     def helperInvalidQuery(self, start, end, suburb, errMsg):
-        jsonResult = population(start, end, suburb)
+        jsonResult = population(start, end, suburb, version="v2")
         result = json.loads(jsonResult)
         assert errMsg == result["error"]
 
@@ -33,17 +33,17 @@ class TestPopulation:
     def testSingleYearQuery(self):
         self.helperValidQuery(2022, 2022, "Burwood", 1, [2022])
 
-    def testValidMissingYearsQuery(self):
-        self.helperValidQuery(2032, 2044, "Burwood", 2, [2036, 2041])
+    def testValidPredictYearsQuery(self):
+        self.helperValidQuery(2032, 2044, "Burwood", 13, list(range(2032, 2045)))
+
+    def testValidPredictYearsAllQuery(self):
+        self.helperValidQuery(2021, 2066, "Randwick", 46, list(range(2021, 2067)))
 
     def testInvalidEndYear(self):
         self.helperInvalidQuery(2021, 2088, "Albury", "Invalid end year")
 
     def testInvalidStartYear(self):
         self.helperInvalidQuery(1999, 2023, "Albury", "Invalid start year")
-
-    def testInvalidYearRange(self):
-        self.helperInvalidQuery(2042, 2044, "Albury", "Invalid year range")
 
     def testInvalidYearOrder(self):
         self.helperInvalidQuery(
