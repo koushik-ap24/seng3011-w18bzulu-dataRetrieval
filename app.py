@@ -57,7 +57,7 @@ def pop(version):
     suburb_info = json.loads(ret_suburb)
     if "error" in suburb_info:
         return Response(suburb_info["error"], status=suburb_info["code"])
-    return suburb
+    return suburb_info
     
 
 @app.get("/population/v1")
