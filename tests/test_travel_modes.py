@@ -1,11 +1,10 @@
 import json
 import sys
 import os
-import pytest
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
-from hts_retrieval import suburbs_travel_modes
+from hts_retrieval import suburbs_travel_modes  # noqa: E402
 
 class TestTravelModes():
     # HELPER FUNCTIONS

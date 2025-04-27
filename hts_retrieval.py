@@ -98,7 +98,7 @@ def suburbs_data_helper(suburbs, category):
 
         # If finished compiling all data for a suburb, append to results
         if suburb_name != prev_suburb_name:
-            if prev_suburb_name != None:
+            if prev_suburb_name is not None:
                 suburbs_result.append(suburb_data.copy())
             # Overwrite existing dict to store data for a new suburb
             suburb_data["suburb"] = suburb_name
