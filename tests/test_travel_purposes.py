@@ -6,7 +6,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 from hts_retrieval import suburbs_travel_purposes  # noqa: E402
 
-class TestTravelPurposes():
+class TestTravelPurposes:
     # HELPER FUNCTIONS
     def assert_valid_purpose_format(self, purpose_obj):
         # Assert that the given purpose object is in the expected format

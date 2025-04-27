@@ -12,7 +12,7 @@ except ImportError:
     # Skip tests if retrieval.py or populationAll() don't exist
     pytest.skip(reason="could not import populationAll", allow_module_level=True)
 
-class TestPopulationAll():
+class TestPopulationAll:
     def helperValidQuery(self, start, end, expectedEst, expectedYears):
         jsonResult = populationAll(start, end)
         result = json.loads(jsonResult)

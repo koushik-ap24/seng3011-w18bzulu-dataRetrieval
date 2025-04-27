@@ -13,7 +13,7 @@ except ImportError:
     pytest.skip(reason="could not import populations", allow_module_level=True)
 
 
-class TestPopulations():
+class TestPopulations:
     def helperValidQuery(self, start, end, suburbs, expectedEst, expectedYears):
         jsonResult = populations(start, end, "ERP", suburbs)
         result = json.loads(jsonResult)

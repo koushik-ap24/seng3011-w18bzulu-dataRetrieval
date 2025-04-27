@@ -6,7 +6,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 from hts_retrieval import suburbs_travel_modes  # noqa: E402
 
-class TestTravelModes():
+class TestTravelModes:
     # HELPER FUNCTIONS
     def assert_valid_mode_format(self, mode_obj):
         # Assert that the given mode object is in the expected format

@@ -6,7 +6,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 from hts_retrieval import purposes_top_suburbs  # noqa: E402
 
-class TestTravelPurposesTopSuburbs():
+class TestTravelPurposesTopSuburbs:
     # HELPER FUNCTIONS
     def assert_valid(self, options, limit, expected_result):
         result = json.loads(purposes_top_suburbs(options, limit))
