@@ -146,10 +146,14 @@ def top_suburbs_helper(options, category, limit):
     # If category options list is empty, search for all options by default
     if options == "":
         options = MODE_OPTIONS if category == "mode" else PURPOSE_OPTIONS
-    formatted_options = list(s.capitalize() for s in options)
-    print(formatted_options)
+
+    # Format list of options as a string for the query
+    if category == "mode":
+        formatted_options = list(s.lower() for s in options)
+    else:
+        formatted_options = list(s.capitalize() for s in options)
     formatted_options = ', '.join(f"'{s}', '{s}*', '{s}**'" for s in formatted_options)
-    print(formatted_options)
+
     db_travel_query = f"""
         SELECT hh_lga_name,
         SUM({numtrips_key}) AS sum_num_trips,
