@@ -45,6 +45,7 @@ def convert_v2_to_v1(event):
 
 # Sample change
 def pop(version):
+    # Handle population data retrieval for a single requested suburb.
     suburb = request.args.get("suburb")
     startYearStr = request.args.get("startYear")
     endYearStr = request.args.get("endYear")
@@ -58,19 +59,29 @@ def pop(version):
     if "error" in suburb_info:
         return Response(suburb_info["error"], status=suburb_info["code"])
     return suburb_info
-    
+
 
 @app.get("/population/v1")
 def population_v1():
+    """
+    Provide the population estimate for the requested suburb in the
+    requested time period.
+    """
     return pop("v1")
 
 
 @app.get("/population/v2")
 def population_v2():
+    """
+    Provide the population estimate for the requested suburb in the
+    requested time period. Include linear regression predictions from
+    Tango API.
+    """
     return pop("v2")
 
 
 def pops(version):
+    # Handle population data retrieval for a list of requested suburbs.
     suburbsStr = request.args.get("suburbs")
     if suburbsStr == "" or suburbsStr is None:
         return Response("No suburb found", status=400)
@@ -91,68 +102,32 @@ def pops(version):
         return Response(suburb_info["error"], status=suburb_info["code"])
     return new_suburbs
 
-@app.get("/travel/mode/suburbs/v1")
-def travel_modes():
-    suburbs = request.args.get("suburbs")[1:-1].split(",")
-    if suburbs == "" or suburbs is None:
-        return Response("No suburbs entered", status=400)
-    suburbs_data = hts_retrieval.suburbs_travel_modes(suburbs)
-    suburb_info = json.loads(suburbs_data)
-    if "error" in suburb_info:
-        return Response(suburb_info["error"], status=suburb_info["code"])
-    return suburbs_data
-
-@app.get("/travel/purpose/suburbs/v1")
-def travel_purposes():
-    suburbs = request.args.get("suburbs")[1:-1].split(",")
-    if suburbs == "" or suburbs is None:
-        return Response("No suburbs entered", status=400)
-    suburbs_data = hts_retrieval.suburbs_travel_purposes(suburbs)
-    suburb_info = json.loads(suburbs_data)
-    if "error" in suburb_info:
-        return Response(suburb_info["error"], status=suburb_info["code"])
-    return suburbs_data
-
-@app.get("/travel/mode/top/v1")
-def modes_top():
-    modes = request.args.get("modes")[1:-1].split(",")
-    limitStr = request.args.get("limit")
-    if limitStr:
-        limit = int(limitStr)
-    else:
-        return Response("No limit given", status=400)
-    suburbs_data = hts_retrieval.modes_suburbs(modes, limit)
-    suburbs_info = json.loads(suburbs_data)
-    if "error" in suburbs_info:
-        return Response(suburbs_info["error"], status=suburbs_info["code"])
-    return suburbs_data
-
-@app.get("/travel/purpose/top/v1")
-def purposes_top():
-    purposes = request.args.get("purposes")[1:-1].split(",")
-    limitStr = request.args.get("limit")
-    if limitStr:
-        limit = int(limitStr)
-    else:
-        return Response("No limit given", status=400)
-    suburbs_data = hts_retrieval.purposes_suburbs(purposes, limit)
-    suburbs_info = json.loads(suburbs_data)
-    if "error" in suburbs_info:
-        return Response(suburbs_info["error"], status=suburbs_info["code"])
-    return suburbs_data
 
 @app.get("/populations/v1")
 def populations_v1():
+    """
+    Provide the population estimate for the requested suburbs in the
+    requested time period. 
+    """
     return pops("v1")
 
 
 @app.get("/populations/v2")
 def populations_v2():
+    """
+    Provide the population estimate for the requested suburbs in the
+    requested time period. Include linear regression predictions from
+    Tango API.
+    """
     return pops("v2")
 
 
 @app.get("/populations/all/v1")
 def populationsAll():
+    """
+    Provide the population estimate for all available NSW suburbs in the
+    requested time period.
+    """
     startYearStr = request.args.get("startYear")
     endYearStr = request.args.get("endYear")
     if startYearStr and endYearStr:
@@ -165,6 +140,78 @@ def populationsAll():
     if "error" in suburb_info:
         return Response(suburb["error"], status=suburb["code"])
     return suburb
+
+
+@app.get("/travel/mode/suburbs/v1")
+def travel_modes():
+    """
+    Return usage statistics about different modes of transport for each
+    of the requested suburbs.
+    """
+    suburbs = request.args.get("suburbs")[1:-1].split(",")
+    if suburbs == "" or suburbs is None:
+        return Response("No suburbs entered", status=400)
+    suburbs_data = hts_retrieval.suburbs_travel_modes(suburbs)
+    suburb_info = json.loads(suburbs_data)
+    if "error" in suburb_info:
+        return Response(suburb_info["error"], status=suburb_info["code"])
+    return suburbs_data
+
+
+@app.get("/travel/purpose/suburbs/v1")
+def travel_purposes():
+    """
+    Return statistics about different purposes for travel for each
+    of the requested suburbs.
+    """
+    suburbs = request.args.get("suburbs")[1:-1].split(",")
+    if suburbs == "" or suburbs is None:
+        return Response("No suburbs entered", status=400)
+    suburbs_data = hts_retrieval.suburbs_travel_purposes(suburbs)
+    suburb_info = json.loads(suburbs_data)
+    if "error" in suburb_info:
+        return Response(suburb_info["error"], status=suburb_info["code"])
+    return suburbs_data
+
+
+@app.get("/travel/mode/top/v1")
+def modes_top():
+    """
+    Return statistics for suburbs with the highest number of trips
+    associated with the requested mode(s) of transport. Cap the number
+    of returned suburbs at the requested limit.
+    """
+    modes = request.args.get("modes")[1:-1].split(",")
+    limitStr = request.args.get("limit")
+    if limitStr:
+        limit = int(limitStr)
+    else:
+        return Response("No limit given", status=400)
+    suburbs_data = hts_retrieval.modes_suburbs(modes, limit)
+    suburbs_info = json.loads(suburbs_data)
+    if "error" in suburbs_info:
+        return Response(suburbs_info["error"], status=suburbs_info["code"])
+    return suburbs_data
+
+
+@app.get("/travel/purpose/top/v1")
+def purposes_top():
+    """
+    Return statistics for suburbs with the highest number of trips
+    associated with the requested travel purposes(s). Cap the number
+    of returned suburbs at the requested limit.
+    """
+    purposes = request.args.get("purposes")[1:-1].split(",")
+    limitStr = request.args.get("limit")
+    if limitStr:
+        limit = int(limitStr)
+    else:
+        return Response("No limit given", status=400)
+    suburbs_data = hts_retrieval.purposes_suburbs(purposes, limit)
+    suburbs_info = json.loads(suburbs_data)
+    if "error" in suburbs_info:
+        return Response(suburbs_info["error"], status=suburbs_info["code"])
+    return suburbs_data
 
 
 if __name__ == "__main__":

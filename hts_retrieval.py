@@ -27,7 +27,7 @@ PURPOSE_OPTIONS = [
 ]
 
 def db_query(query):
-    # Returns the results of the given query in the database
+    # Return the results of the given query in the database
     conn = db_connect(
         host=os.getenv("HOST"),
         port=os.getenv("PORT"),
@@ -44,8 +44,9 @@ def db_query(query):
 
 def map_category_data(data, category):
     """
-    Given a tuple of data for one transport mode or travel purpose, converts
-    the tuple into a dict object with a unique key for each data type.
+    Given a tuple of data for one transport mode or travel purpose,
+    convert the tuple into a dict object with a unique key for each data
+    type.
     """
     data_keys = [
         category, "numTrips", "pctOfTotal", "tripAvgDistance", "tripAvgTime"
@@ -55,6 +56,10 @@ def map_category_data(data, category):
     return dict(zip(data_keys, data_arr))
 
 def suburbs_data_helper(suburbs, category):
+    """
+    Handle travel data retrieval for a list of requested suburbs and a
+    requested category (transport modes or travel purposes).
+    """
     # Validity checks
     if suburbs == "":
         return {"error": "No suburbs entered", "code": 400}
@@ -120,6 +125,9 @@ def suburbs_data_helper(suburbs, category):
     return suburbs_result
 
 def top_suburbs_helper(options, category, limit):
+    """
+    Handle travel data retrieval for a list of requested modes/purposes.
+    """
     # TODO: check that all given categories are valid
     if limit <= 0 or limit > 25:
         return {
@@ -220,8 +228,8 @@ def top_suburbs_helper(options, category, limit):
 
 def suburbs_travel_modes(suburbs):
     """
-    Returns statistics about each mode of transport for each of the given
-    suburbs.
+    Return usage statistics about different modes of transport for each
+    of the requested suburbs.
     """
     res = suburbs_data_helper(suburbs, "mode")
     # Check if result is an error (returned as a dict object)
@@ -231,8 +239,8 @@ def suburbs_travel_modes(suburbs):
 
 def suburbs_travel_purposes(suburbs):
     """
-    Returns statistics about various travel purposes in each of the
-    given suburbs.
+    Return statistics about different purposes for travel for each
+    of the requested suburbs.
     """
     res = suburbs_data_helper(suburbs, "purpose")
     # Check if result is an error (returned as a dict object)
@@ -242,9 +250,9 @@ def suburbs_travel_purposes(suburbs):
 
 def modes_top_suburbs(modes, limit):
     """
-    Returns statistics for suburbs with the highest number of trips associated
-    with the given mode(s). Suburbs are returned in sorted order from
-    highest to lowest counts.
+    Return statistics for suburbs with the highest number of trips
+    associated with the requested mode(s) of transport. Cap the number
+    of returned suburbs at the requested limit.
     """
     res = top_suburbs_helper(modes, "mode", limit)
     # Check if result is an error (returned as a dict object)
@@ -254,9 +262,9 @@ def modes_top_suburbs(modes, limit):
 
 def purposes_top_suburbs(purposes, limit):
     """
-    Returns statistics for suburbs with the highest number of trips associated
-    with the given purpose(s). Suburbs are returned in sorted order from
-    highest to lowest counts.
+    Return statistics for suburbs with the highest number of trips
+    associated with the requested travel purposes(s). Cap the number
+    of returned suburbs at the requested limit.
     """
     res = top_suburbs_helper(purposes, "purpose", limit)
     # Check if result is an error (returned as a dict object)
