@@ -27,8 +27,34 @@ class TestTravelModesTopSuburbs:
         limit = 5
         expected_result = {"topSuburbs": options}
         self.assert_valid(options, limit, expected_result)
+    
+    def test_valid_modes_all(self):
+        options = ["all"]
+        limit = 5
+        expected_result = {"topSuburbs": [
+            "vehicle driver",
+            "vehicle passenger",
+            "public transport",
+            "walk linked",
+            "walk only",
+            "other"
+        ]}
+        self.assert_valid(options, limit, expected_result)
+
+    def test_valid_modes_empty_list(self):
+        options = []
+        limit = 5
+        expected_result = {"topSuburbs": [
+            "vehicle driver",
+            "vehicle passenger",
+            "public transport",
+            "walk linked",
+            "walk only",
+            "other"
+        ]}
+        self.assert_valid(options, limit, expected_result)
 
     def test_invalid_options(self):
         options = ["A", "B", "C"]
         limit = 5
-        self.assert_invalid(options, limit, "No data is available for these options")
+        self.assert_invalid(options, limit, "Some or all of the requested options are invalid")
