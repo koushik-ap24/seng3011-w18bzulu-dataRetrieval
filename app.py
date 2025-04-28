@@ -187,7 +187,7 @@ def modes_top():
         limit = int(limitStr)
     else:
         return Response("No limit given", status=400)
-    suburbs_data = hts_retrieval.modes_suburbs(modes, limit)
+    suburbs_data = hts_retrieval.modes_top_suburbs(modes, limit)
     suburbs_info = json.loads(suburbs_data)
     if "error" in suburbs_info:
         return Response(suburbs_info["error"], status=suburbs_info["code"])
@@ -207,7 +207,7 @@ def purposes_top():
         limit = int(limitStr)
     else:
         return Response("No limit given", status=400)
-    suburbs_data = hts_retrieval.purposes_suburbs(purposes, limit)
+    suburbs_data = hts_retrieval.purposes_top_suburbs(purposes, limit)
     suburbs_info = json.loads(suburbs_data)
     if "error" in suburbs_info:
         return Response(suburbs_info["error"], status=suburbs_info["code"])
