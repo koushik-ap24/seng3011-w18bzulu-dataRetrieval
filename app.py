@@ -141,8 +141,6 @@ def populationsAll():
         return Response(suburb["error"], status=suburb["code"])
     return suburb
 
-def check_valid_arg():
-
 
 @app.get("/travel/mode/suburbs/v1")
 def travel_modes():
