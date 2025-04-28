@@ -674,6 +674,550 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "travel/mode/suburbs/v1",
+			"item": [
+				{
+					"name": "200: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/mode/suburbs/v1?suburbs=[Blacktown,Parramatta]",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"mode",
+								"suburbs",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "suburbs",
+									"value": "[Blacktown,Parramatta]"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: No data for suburb",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Data is not available for some requested suburbs\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/mode/suburbs/v1?suburbs=[Blacktown,Paramatta]",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"mode",
+								"suburbs",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "suburbs",
+									"value": "[Blacktown,Paramatta]"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "travel/purpose/suburbs/v1",
+			"item": [
+				{
+					"name": "200: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/purpose/suburbs/v1?suburbs=[Blacktown,Parramatta]",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"purpose",
+								"suburbs",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "suburbs",
+									"value": "[Blacktown,Parramatta]"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: No data for suburb",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Data is not available for some requested suburbs\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/purpose/suburbs/v1?suburbs=[Blacktown,Paramatta]",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"purpose",
+								"suburbs",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "suburbs",
+									"value": "[Blacktown,Paramatta]"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "travel/mode/top/v1",
+			"item": [
+				{
+					"name": "200: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/mode/top/v1?modes=[vehicle driver]&limit=20",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"mode",
+								"top",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "modes",
+									"value": "[vehicle driver]"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: No data for suburb",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Some or all of the requested options are invalid\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/mode/top/v1?modes=[vehicle]&limit=5",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"mode",
+								"top",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "modes",
+									"value": "[vehicle]"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: Limit not in range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Limit must not be less than 1 or greater than 25\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/mode/top/v1?modes=[other]&limit=0",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"mode",
+								"top",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "modes",
+									"value": "[other]"
+								},
+								{
+									"key": "limit",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "travel/purpose/top/v1",
+			"item": [
+				{
+					"name": "200: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/purpose/top/v1?purposes=[commute]&limit=5",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"purpose",
+								"top",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "purposes",
+									"value": "[commute]"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: No data for suburb",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Some or all of the requested options are invalid\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/purpose/top/v1?purposes=[comm]&limit=5",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"purpose",
+								"top",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "purposes",
+									"value": "[comm]"
+								},
+								{
+									"key": "limit",
+									"value": "5"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400: Limit not in range Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Expect 400 Invalid end year\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.text()).to.eql(\"Limit must not be less than 1 or greater than 25\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nzukdmrh2b.execute-api.us-east-2.amazonaws.com/dev/travel/purpose/top/v1?purposes=[commute]&limit=0",
+							"protocol": "https",
+							"host": [
+								"nzukdmrh2b",
+								"execute-api",
+								"us-east-2",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"travel",
+								"purpose",
+								"top",
+								"v1"
+							],
+							"query": [
+								{
+									"key": "purposes",
+									"value": "[commute]"
+								},
+								{
+									"key": "limit",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
