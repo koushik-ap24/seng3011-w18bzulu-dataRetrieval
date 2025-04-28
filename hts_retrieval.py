@@ -134,6 +134,15 @@ def top_suburbs_helper(options, category, limit):
             "error": "Limit must not be less than 1 or greater than 25",
             "code": 400
         }
+    # If category options list is empty, search for all options by default
+    full_options = MODE_OPTIONS if category == "mode" else PURPOSE_OPTIONS
+    if len(options) == 0 or options == ["all"]:
+        options = full_options
+    if any(o not in full_options for o in options):
+        return {
+            "error": "Some or all of the requested options are invalid",
+            "code": 400
+        }
 
     # Formulate query based on which category of travel data was requested
     if category == "mode":
@@ -150,10 +159,6 @@ def top_suburbs_helper(options, category, limit):
         return {
             "error": "Category must be either 'mode' or 'purpose", "code": 400
         }
-
-    # If category options list is empty, search for all options by default
-    if options == "":
-        options = MODE_OPTIONS if category == "mode" else PURPOSE_OPTIONS
 
     # Format list of options as a string for the query
     if category == "mode":
