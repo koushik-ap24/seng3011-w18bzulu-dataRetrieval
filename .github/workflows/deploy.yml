@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - dev
+      - staging
+  repository_dispatch:
+    types: [deploy-staging]
 
 jobs:
   deploy:
@@ -13,6 +16,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      
+      - name: Set branch name
+        id: set-branch
+        run: |
+          if [ "${{ github.event_name }}" == "repository_dispatch" ]; then
+            echo "BRANCH=${{ github.event.client_payload.branch }}" >> $GITHUB_ENV
+          else
+            echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          fi
 
       - name: Create directory structure
         run: mkdir -p package
@@ -87,7 +99,7 @@ jobs:
 
       - name: Create or update Lambda alias
         run: |
-          ALIAS_NAME=$([[ "${GITHUB_REF##*/}" == "main" ]] && echo "prod" || echo "dev")
+          ALIAS_NAME=$([[ "${BRANCH}" == "main" ]] && echo "prod" || ([[ "${BRANCH}" == "staging" ]] && echo "staging" || echo "dev"))
           echo "Setting alias to $ALIAS_NAME -> version $VERSION"
 
           if aws lambda get-alias --function-name seng3011_dataRetrieval --name $ALIAS_NAME > /dev/null 2>&1; then
@@ -106,3 +118,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: "us-east-2"
           VERSION: ${{ env.VERSION }}
+          BRANCH: ${{ env.BRANCH }}
