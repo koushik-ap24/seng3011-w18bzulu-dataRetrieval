@@ -148,9 +148,11 @@ def travel_modes():
     Return usage statistics about different modes of transport for each
     of the requested suburbs.
     """
-    suburbs = request.args.get("suburbs")[1:-1].split(",")
-    if suburbs == "" or suburbs is None:
+    suburbsStr = request.args.get("suburbs")
+    if suburbsStr == "" or suburbsStr is None:
         return Response("No suburbs entered", status=400)
+    else:
+        suburbs = suburbsStr[1:-1].split(",")
     suburbs_data = hts_retrieval.suburbs_travel_modes(suburbs)
     suburb_info = json.loads(suburbs_data)
     if "error" in suburb_info:
@@ -164,9 +166,11 @@ def travel_purposes():
     Return statistics about different purposes for travel for each
     of the requested suburbs.
     """
-    suburbs = request.args.get("suburbs")[1:-1].split(",")
-    if suburbs == "" or suburbs is None:
+    suburbsStr = request.args.get("suburbs")
+    if suburbsStr == "" or suburbsStr is None:
         return Response("No suburbs entered", status=400)
+    else:
+        suburbs = suburbsStr[1:-1].split(",")
     suburbs_data = hts_retrieval.suburbs_travel_purposes(suburbs)
     suburb_info = json.loads(suburbs_data)
     if "error" in suburb_info:
@@ -181,13 +185,17 @@ def modes_top():
     associated with the requested mode(s) of transport. Cap the number
     of returned suburbs at the requested limit.
     """
-    modes = request.args.get("modes")[1:-1].split(",")
+    modesStr = request.args.get("modes")
     limitStr = request.args.get("limit")
-    if limitStr:
-        limit = int(limitStr)
+    if modesStr == "" or modesStr is None:
+        return Response("Missing 'modes' parameter", status=400)
     else:
-        return Response("No limit given", status=400)
-    suburbs_data = hts_retrieval.modes_suburbs(modes, limit)
+        modes = modesStr[1:-1].split(",")
+    if limitStr is None:
+        return Response("Missing 'limit' parameter", status=400)
+    else:
+        limit = int(limitStr)
+    suburbs_data = hts_retrieval.modes_top_suburbs(modes, limit)
     suburbs_info = json.loads(suburbs_data)
     if "error" in suburbs_info:
         return Response(suburbs_info["error"], status=suburbs_info["code"])
@@ -201,13 +209,17 @@ def purposes_top():
     associated with the requested travel purposes(s). Cap the number
     of returned suburbs at the requested limit.
     """
-    purposes = request.args.get("purposes")[1:-1].split(",")
+    purposesStr = request.args.get("purposes")
     limitStr = request.args.get("limit")
-    if limitStr:
-        limit = int(limitStr)
+    if purposesStr == "" or purposesStr is None:
+        return Response("Missing 'purposes' parameter", status=400)
     else:
-        return Response("No limit given", status=400)
-    suburbs_data = hts_retrieval.purposes_suburbs(purposes, limit)
+        purposes = purposesStr[1:-1].split(",")
+    if limitStr is None:
+        return Response("Missing 'limit' parameter", status=400)
+    else:
+        limit = int(limitStr)
+    suburbs_data = hts_retrieval.purposes_top_suburbs(purposes, limit)
     suburbs_info = json.loads(suburbs_data)
     if "error" in suburbs_info:
         return Response(suburbs_info["error"], status=suburbs_info["code"])
